@@ -4,11 +4,8 @@ A turnkey, production-grade **n8n automation workflow** that serves a complete, 
 
 ---
 
-
 <p align="center">
-  <p align="center">
   <img src="assets/cover.png" alt="AI Virtual Home Staging Studio — Editorial Luxury Showcase" width="100%">
-</p>
 </p>
 
 ## 🏗️ Architecture & Serverless Pipeline Flow
