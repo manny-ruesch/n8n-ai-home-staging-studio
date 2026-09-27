@@ -1,0 +1,1404 @@
+{
+  "name": "AI Home Staging Studio",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "home-staging-form",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "d9499305-41af-4541-9a3f-23125daf3d6e",
+      "name": "Form GET",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        64
+      ],
+      "webhookId": "e340b3de-305b-4615-a8f8-95b779584ca1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// PRODUCT CONFIG — everything you customize lives here.\n// ============================================================\nconst BRAND = {\n  name: \"Your Agency\",                     // page title\n  tagline: \"\",                             // leave empty to use the translated default tagline\n  language: \"en\",                          // \"en\" | \"fr\" | \"de\"\n  logoUrl: \"\",                             // your logo URL — leave empty to keep the animated default logo\n  mascot: \"\",                              // optional emoji next to the logo (dances during generation)\n  colorDark: \"#0c2438\",                    // titles & text\n  colorPrimary: \"#133b5c\",                 // buttons\n  colorAccent: \"#2a6f97\"                   // links & status\n};\n\n// All UI strings. Add your own language by copying a block.\nconst TRANSLATIONS = {\n  \"en\": {\n    \"title\": \"Home Staging AI\",\n    \"tagline\": \"Transform any room in seconds.\",\n    \"actionLabel\": \"What do you want to do?\",\n    \"roomLabel\": \"What is this room?\",\n    \"styleLabel\": \"Which style / brand?\",\n    \"photoLabel\": \"Your photo\",\n    \"photoHint\": \"Click or drop an image here\",\n    \"commentLabel\": \"Special instructions (optional)\",\n    \"commentPlaceholder\": \"e.g. keep the rug visible, prefer warm tones, sofa must face the window...\",\n    \"generate\": \"Generate\",\n    \"sending\": \"Sending…\",\n    \"generating\": [\n      \"Analyzing the room…\",\n      \"Detecting walls and light…\",\n      \"Placing furniture…\",\n      \"Refining style details…\",\n      \"Final render…\"\n    ],\n    \"tooLong\": \"This is taking longer than expected. Check your Drive folder.\",\n    \"uploadFailed\": \"Upload failed. Please try again.\",\n    \"genFailed\": \"Generation failed.\",\n    \"retry\": \"Try again\",\n    \"regenerate\": \"Regenerate\",\n    \"startOver\": \"New staging\",\n    \"download\": \"Download result\",\n    \"before\": \"Before\",\n    \"after\": \"After\",\n    \"notImage\": \"Please select an image.\",\n    \"tooBig\": \"Image too large (max 15 MB).\",\n    \"badFile\": \"Invalid or oversized image file.\",\n    \"pinLabel\": \"Access code\",\n    \"pinInvalid\": \"Invalid access code.\",\n    \"quotaReached\": \"Daily generation limit reached. Try again tomorrow.\",\n    \"copyLink\": \"Copy result link\",\n    \"copyImage\": \"Copy image to clipboard\",\n    \"statsLink\": \"Usage & costs\",\n    \"actions\": {\n      \"furnish\": \"Furnish (Staging)\",\n      \"empty\": \"Empty the room\",\n      \"clean\": \"Clean the room\",\n      \"upscale\": \"Upscale (4K) — needs fal.ai key\"\n    },\n    \"rooms\": {\n      \"LIVING ROOM\": \"Living room\",\n      \"KITCHEN\": \"Kitchen\",\n      \"BEDROOM\": \"Bedroom\",\n      \"KIDS ROOM\": \"Kids room\",\n      \"BALCONY\": \"Balcony\",\n      \"OFFICE\": \"Office\",\n      \"BATHROOM\": \"Bathroom\",\n      \"STUDIO\": \"Studio\",\n      \"LARGE LIVING ROOM\": \"Large living room\"\n    },\n    \"groups\": {\n      \"signature\": \"Your signature style\",\n      \"classic\": \"Classic styles\",\n      \"trendy\": \"Trendy styles\",\n      \"large\": \"Large spaces\",\n      \"brand\": \"Furniture brands\",\n      \"kb\": \"Kitchen & bath brands\"\n    }\n  },\n  \"fr\": {\n    \"title\": \"Home Staging IA\",\n    \"tagline\": \"Transformez n'importe quelle pièce en quelques secondes.\",\n    \"actionLabel\": \"Que voulez-vous faire ?\",\n    \"roomLabel\": \"Quelle est cette pièce ?\",\n    \"styleLabel\": \"Quel style / quelle marque ?\",\n    \"photoLabel\": \"Votre photo\",\n    \"photoHint\": \"Cliquez ou déposez une image ici\",\n    \"commentLabel\": \"Instructions particulières (optionnel)\",\n    \"commentPlaceholder\": \"ex. garder le tapis visible, tons chauds, canapé face à la fenêtre...\",\n    \"generate\": \"Générer\",\n    \"sending\": \"Envoi…\",\n    \"generating\": [\n      \"Analyse de la pièce…\",\n      \"Détection des murs et de la lumière…\",\n      \"Placement du mobilier…\",\n      \"Ajustement des détails…\",\n      \"Rendu final…\"\n    ],\n    \"tooLong\": \"C'est plus long que prévu. Vérifiez votre dossier Drive.\",\n    \"uploadFailed\": \"Échec de l'envoi. Réessayez.\",\n    \"genFailed\": \"La génération a échoué.\",\n    \"retry\": \"Réessayer\",\n    \"regenerate\": \"Régénérer\",\n    \"startOver\": \"Nouveau staging\",\n    \"download\": \"Télécharger le résultat\",\n    \"before\": \"Avant\",\n    \"after\": \"Après\",\n    \"notImage\": \"Veuillez sélectionner une image.\",\n    \"tooBig\": \"Image trop lourde (max 15 Mo).\",\n    \"badFile\": \"Fichier image invalide ou trop volumineux.\",\n    \"pinLabel\": \"Code d'accès\",\n    \"pinInvalid\": \"Code d'accès invalide.\",\n    \"quotaReached\": \"Limite quotidienne de générations atteinte. Réessayez demain.\",\n    \"copyLink\": \"Copier le lien du résultat\",\n    \"copyImage\": \"Copier l'image\",\n    \"statsLink\": \"Usage & coûts\",\n    \"actions\": {\n      \"furnish\": \"Meubler (staging)\",\n      \"empty\": \"Vider la pièce\",\n      \"clean\": \"Nettoyer la pièce\",\n      \"upscale\": \"Améliorer en 4K — nécessite une clé fal.ai\"\n    },\n    \"rooms\": {\n      \"LIVING ROOM\": \"Salon\",\n      \"KITCHEN\": \"Cuisine\",\n      \"BEDROOM\": \"Chambre\",\n      \"KIDS ROOM\": \"Chambre d'enfant\",\n      \"BALCONY\": \"Balcon\",\n      \"OFFICE\": \"Bureau\",\n      \"BATHROOM\": \"Salle de bain\",\n      \"STUDIO\": \"Studio\",\n      \"LARGE LIVING ROOM\": \"Grand salon\"\n    },\n    \"groups\": {\n      \"signature\": \"Votre style maison\",\n      \"classic\": \"Styles classiques\",\n      \"trendy\": \"Styles tendance\",\n      \"large\": \"Grands espaces\",\n      \"brand\": \"Marques de mobilier\",\n      \"kb\": \"Marques cuisine & bain\"\n    }\n  },\n  \"de\": {\n    \"title\": \"Home Staging KI\",\n    \"tagline\": \"Verwandeln Sie jeden Raum in Sekunden.\",\n    \"actionLabel\": \"Was möchten Sie tun?\",\n    \"roomLabel\": \"Welcher Raum ist das?\",\n    \"styleLabel\": \"Welcher Stil / welche Marke?\",\n    \"photoLabel\": \"Ihr Foto\",\n    \"photoHint\": \"Klicken oder Bild hierher ziehen\",\n    \"commentLabel\": \"Besondere Hinweise (optional)\",\n    \"commentPlaceholder\": \"z. B. Teppich sichtbar lassen, warme Töne, Sofa zum Fenster...\",\n    \"generate\": \"Generieren\",\n    \"sending\": \"Wird gesendet…\",\n    \"generating\": [\n      \"Raumanalyse…\",\n      \"Wände und Licht werden erkannt…\",\n      \"Möbel werden platziert…\",\n      \"Details werden verfeinert…\",\n      \"Finales Rendering…\"\n    ],\n    \"tooLong\": \"Dauert länger als erwartet. Prüfen Sie Ihren Drive-Ordner.\",\n    \"uploadFailed\": \"Upload fehlgeschlagen. Bitte erneut versuchen.\",\n    \"genFailed\": \"Generierung fehlgeschlagen.\",\n    \"retry\": \"Erneut versuchen\",\n    \"regenerate\": \"Neu generieren\",\n    \"startOver\": \"Neues Staging\",\n    \"download\": \"Ergebnis herunterladen\",\n    \"before\": \"Vorher\",\n    \"after\": \"Nachher\",\n    \"notImage\": \"Bitte wählen Sie ein Bild aus.\",\n    \"tooBig\": \"Bild zu groß (max. 15 MB).\",\n    \"badFile\": \"Ungültige oder zu große Bilddatei.\",\n    \"pinLabel\": \"Zugangscode\",\n    \"pinInvalid\": \"Ungültiger Zugangscode.\",\n    \"quotaReached\": \"Tageslimit erreicht. Versuchen Sie es morgen erneut.\",\n    \"copyLink\": \"Ergebnislink kopieren\",\n    \"copyImage\": \"Bild kopieren\",\n    \"statsLink\": \"Nutzung & Kosten\",\n    \"actions\": {\n      \"furnish\": \"Einrichten (Staging)\",\n      \"empty\": \"Raum leeren\",\n      \"clean\": \"Raum aufräumen\",\n      \"upscale\": \"Hochskalieren (4K) — benötigt fal.ai-Schlüssel\"\n    },\n    \"rooms\": {\n      \"LIVING ROOM\": \"Wohnzimmer\",\n      \"KITCHEN\": \"Küche\",\n      \"BEDROOM\": \"Schlafzimmer\",\n      \"KIDS ROOM\": \"Kinderzimmer\",\n      \"BALCONY\": \"Balkon\",\n      \"OFFICE\": \"Büro\",\n      \"BATHROOM\": \"Badezimmer\",\n      \"STUDIO\": \"Studio-Apartment\",\n      \"LARGE LIVING ROOM\": \"Großes Wohnzimmer\"\n    },\n    \"groups\": {\n      \"signature\": \"Ihr Signature-Stil\",\n      \"classic\": \"Klassische Stile\",\n      \"trendy\": \"Trend-Stile\",\n      \"large\": \"Große Räume\",\n      \"brand\": \"Möbelmarken\",\n      \"kb\": \"Küchen- & Badmarken\"\n    }\n  }\n};\n\n// Style catalog shown in the form.\n// v = value sent to the AI (must match the Brain style library)\n// g = group, r = rooms where the style is offered (\"*\" = all rooms)\n// en/fr/de = short description shown under the selector\nconst STYLES = [\n  {\n    \"v\": \"Signature Style\",\n    \"g\": \"signature\",\n    \"r\": [\n      \"*\"\n    ],\n    \"en\": \"Your agency's own look — edit it in the Brain node\",\n    \"fr\": \"Le style maison de votre agence — éditable dans le nœud Brain\",\n    \"de\": \"Der eigene Look Ihrer Agentur — im Brain-Node anpassbar\"\n  },\n  {\n    \"v\": \"Modern\",\n    \"g\": \"classic\",\n    \"r\": [\n      \"*\"\n    ],\n    \"en\": \"Clean lines, neutral palette, bright and airy\",\n    \"fr\": \"Lignes épurées, palette neutre, lumineux\",\n    \"de\": \"Klare Linien, neutrale Töne, hell und luftig\"\n  },\n  {\n    \"v\": \"Luxury Modern\",\n    \"g\": \"classic\",\n    \"r\": [\n      \"*\"\n    ],\n    \"en\": \"Noble materials, sleek finishes, brass accents\",\n    \"fr\": \"Matériaux nobles, finitions racées, touches laiton\",\n    \"de\": \"Edle Materialien, elegante Oberflächen, Messingakzente\"\n  },\n  {\n    \"v\": \"Ultra Luxury\",\n    \"g\": \"classic\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"BEDROOM\",\n      \"BATHROOM\"\n    ],\n    \"en\": \"Marble, velvet, dramatic lighting\",\n    \"fr\": \"Marbre, velours, éclairage spectaculaire\",\n    \"de\": \"Marmor, Samt, dramatisches Licht\"\n  },\n  {\n    \"v\": \"Scandinavian\",\n    \"g\": \"classic\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"BEDROOM\",\n      \"KIDS ROOM\",\n      \"STUDIO\"\n    ],\n    \"en\": \"Light wood, soft pastels, hygge comfort\",\n    \"fr\": \"Bois clair, pastels doux, esprit hygge\",\n    \"de\": \"Helles Holz, sanfte Pastelltöne, Hygge\"\n  },\n  {\n    \"v\": \"Industrial\",\n    \"g\": \"classic\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"KITCHEN\",\n      \"OFFICE\",\n      \"STUDIO\"\n    ],\n    \"en\": \"Brick, concrete, raw wood, earthy tones\",\n    \"fr\": \"Brique, béton, bois brut, tons terreux\",\n    \"de\": \"Backstein, Beton, rohes Holz, Erdtöne\"\n  },\n  {\n    \"v\": \"Mid-Century\",\n    \"g\": \"classic\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"OFFICE\",\n      \"STUDIO\"\n    ],\n    \"en\": \"1950s–60s icons, warm walnut\",\n    \"fr\": \"Icônes années 50-60, noyer chaleureux\",\n    \"de\": \"Ikonen der 50er/60er, warmes Nussholz\"\n  },\n  {\n    \"v\": \"Art Deco\",\n    \"g\": \"classic\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"BEDROOM\"\n    ],\n    \"en\": \"Gatsby vibes: geometry, velvet, gold\",\n    \"fr\": \"Esprit Gatsby : géométrie, velours, or\",\n    \"de\": \"Gatsby-Flair: Geometrie, Samt, Gold\"\n  },\n  {\n    \"v\": \"Parisian Chic\",\n    \"g\": \"classic\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"BEDROOM\"\n    ],\n    \"en\": \"Classic architecture meets bold design\",\n    \"fr\": \"Haussmannien chic, design contemporain\",\n    \"de\": \"Klassische Architektur trifft kühnes Design\"\n  },\n  {\n    \"v\": \"Wabi-Sabi\",\n    \"g\": \"classic\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"BEDROOM\",\n      \"STUDIO\"\n    ],\n    \"en\": \"Raw elegant minimalism, aged textures\",\n    \"fr\": \"Minimalisme brut élégant, textures patinées\",\n    \"de\": \"Raffinierter Roh-Minimalismus, Patina\"\n  },\n  {\n    \"v\": \"Eclectic Chic\",\n    \"g\": \"classic\",\n    \"r\": [\n      \"LIVING ROOM\"\n    ],\n    \"en\": \"Curated design icons, gallery feel\",\n    \"fr\": \"Icônes design, esprit galerie\",\n    \"de\": \"Kuratierte Designikonen, Galerie-Feeling\"\n  },\n  {\n    \"v\": \"Japandi\",\n    \"g\": \"trendy\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"BEDROOM\",\n      \"STUDIO\"\n    ],\n    \"en\": \"Japanese zen × Scandinavian function\",\n    \"fr\": \"Zen japonais × fonctionnel scandinave\",\n    \"de\": \"Japanisches Zen × skandinavische Funktion\"\n  },\n  {\n    \"v\": \"Nature Inspired\",\n    \"g\": \"trendy\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"BATHROOM\",\n      \"BALCONY\"\n    ],\n    \"en\": \"Lush plants, organic shapes, stone & wood\",\n    \"fr\": \"Plantes luxuriantes, formes organiques\",\n    \"de\": \"Üppige Pflanzen, organische Formen\"\n  },\n  {\n    \"v\": \"Boho Chic\",\n    \"g\": \"trendy\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"BEDROOM\",\n      \"BALCONY\",\n      \"STUDIO\"\n    ],\n    \"en\": \"Rattan, vintage rugs, warm relaxed vibe\",\n    \"fr\": \"Rotin, tapis vintage, ambiance chaleureuse\",\n    \"de\": \"Rattan, Vintage-Teppiche, warme Atmosphäre\"\n  },\n  {\n    \"v\": \"Coastal\",\n    \"g\": \"trendy\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"BEDROOM\",\n      \"BALCONY\",\n      \"STUDIO\"\n    ],\n    \"en\": \"Sun-drenched, linen, olive & terracotta\",\n    \"fr\": \"Bord de mer chic, lin, olive & terracotta\",\n    \"de\": \"Sonnig, Leinen, Olive & Terrakotta\"\n  },\n  {\n    \"v\": \"Hotel Lounge\",\n    \"g\": \"large\",\n    \"r\": [\n      \"LARGE LIVING ROOM\"\n    ],\n    \"en\": \"Grand hotel lobby, multiple seating zones\",\n    \"fr\": \"Lobby d'hôtel, plusieurs espaces assis\",\n    \"de\": \"Hotellobby, mehrere Sitzbereiche\"\n  },\n  {\n    \"v\": \"California Modern\",\n    \"g\": \"large\",\n    \"r\": [\n      \"LARGE LIVING ROOM\"\n    ],\n    \"en\": \"Oversized linen sofas, olive trees, airy\",\n    \"fr\": \"Canapés XXL en lin, oliviers, aéré\",\n    \"de\": \"XXL-Leinensofas, Olivenbäume, luftig\"\n  },\n  {\n    \"v\": \"American Luxury\",\n    \"g\": \"large\",\n    \"r\": [\n      \"LARGE LIVING ROOM\"\n    ],\n    \"en\": \"Monumental scale, neutral monochrome\",\n    \"fr\": \"Échelle monumentale, monochrome neutre\",\n    \"de\": \"Monumentale Größe, neutrales Monochrom\"\n  },\n  {\n    \"v\": \"Vitra\",\n    \"g\": \"brand\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"OFFICE\"\n    ],\n    \"en\": \"Swiss design icons\",\n    \"fr\": \"Icônes du design suisse\",\n    \"de\": \"Schweizer Designikonen\"\n  },\n  {\n    \"v\": \"BoConcept\",\n    \"g\": \"brand\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"BEDROOM\",\n      \"STUDIO\"\n    ],\n    \"en\": \"Urban Danish design\",\n    \"fr\": \"Design danois urbain\",\n    \"de\": \"Urbanes dänisches Design\"\n  },\n  {\n    \"v\": \"Roche Bobois\",\n    \"g\": \"brand\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"BEDROOM\"\n    ],\n    \"en\": \"French luxury, rich textures\",\n    \"fr\": \"Luxe français, textures riches\",\n    \"de\": \"Französischer Luxus, edle Texturen\"\n  },\n  {\n    \"v\": \"Minotti\",\n    \"g\": \"brand\",\n    \"r\": [\n      \"LIVING ROOM\"\n    ],\n    \"en\": \"Italian ultra-luxe\",\n    \"fr\": \"Ultra-luxe italien\",\n    \"de\": \"Italienischer Ultra-Luxus\"\n  },\n  {\n    \"v\": \"Knoll\",\n    \"g\": \"brand\",\n    \"r\": [\n      \"LIVING ROOM\",\n      \"OFFICE\"\n    ],\n    \"en\": \"Structured design, chrome steel\",\n    \"fr\": \"Design structuré, acier chromé\",\n    \"de\": \"Strukturiertes Design, Chromstahl\"\n  },\n  {\n    \"v\": \"Herman Miller\",\n    \"g\": \"brand\",\n    \"r\": [\n      \"OFFICE\"\n    ],\n    \"en\": \"High-end ergonomic furniture\",\n    \"fr\": \"Mobilier ergonomique haut de gamme\",\n    \"de\": \"Hochwertige ergonomische Möbel\"\n  },\n  {\n    \"v\": \"Ligne Roset\",\n    \"g\": \"brand\",\n    \"r\": [\n      \"LIVING ROOM\"\n    ],\n    \"en\": \"Iconic Togo sofas, plush French design\",\n    \"fr\": \"Canapés Togo iconiques, design français\",\n    \"de\": \"Ikonische Togo-Sofas, französisches Design\"\n  },\n  {\n    \"v\": \"Arthur Bonnet\",\n    \"g\": \"kb\",\n    \"r\": [\n      \"KITCHEN\"\n    ],\n    \"en\": \"French elegance kitchens\",\n    \"fr\": \"Cuisines élégance française\",\n    \"de\": \"Französisch-elegante Küchen\"\n  },\n  {\n    \"v\": \"Bulthaup\",\n    \"g\": \"kb\",\n    \"r\": [\n      \"KITCHEN\"\n    ],\n    \"en\": \"German kitchen minimalism\",\n    \"fr\": \"Minimalisme allemand de cuisine\",\n    \"de\": \"Deutscher Küchen-Minimalismus\"\n  },\n  {\n    \"v\": \"Boffi\",\n    \"g\": \"kb\",\n    \"r\": [\n      \"KITCHEN\"\n    ],\n    \"en\": \"Italian ultra-luxe kitchens\",\n    \"fr\": \"Cuisines italiennes ultra-luxe\",\n    \"de\": \"Italienische Ultra-Luxus-Küchen\"\n  },\n  {\n    \"v\": \"Poliform\",\n    \"g\": \"kb\",\n    \"r\": [\n      \"KITCHEN\",\n      \"BEDROOM\"\n    ],\n    \"en\": \"Italian luxury kitchens & wardrobes\",\n    \"fr\": \"Cuisines & dressings italiens de luxe\",\n    \"de\": \"Italienische Luxusküchen & Schränke\"\n  },\n  {\n    \"v\": \"Porcelanosa\",\n    \"g\": \"kb\",\n    \"r\": [\n      \"BATHROOM\"\n    ],\n    \"en\": \"Spanish spa-like luxury bathrooms\",\n    \"fr\": \"Salles de bain espagnoles esprit spa\",\n    \"de\": \"Spanische Spa-Badezimmer\"\n  }\n];\n\n// Optional style thumbnails shown next to the description.\n// Map a style value to an image URL, e.g. { \"Modern\": \"https://yoursite.com/thumbs/modern.jpg\" }\n// See STYLE-THUMBNAILS.md for how to generate them with this very workflow.\nconst STYLE_THUMBS = {};\n\n// ============================================================\n// END CONFIG — no need to edit below this line.\n// ============================================================\n\nconst lang = TRANSLATIONS[BRAND.language] ? BRAND.language : \"en\";\nconst L = TRANSLATIONS[lang];\nconst stylesLocalized = STYLES.map(function (s) {\n  return { v: s.v, g: s.g, r: s.r, d: s[lang] || s.en };\n});\n\nconst defaultLogo = \"<svg class=\\\"logo\\\" viewBox=\\\"0 0 120 120\\\" role=\\\"img\\\" aria-label=\\\"Home Staging AI\\\"><circle cx=\\\"60\\\" cy=\\\"60\\\" r=\\\"58\\\" fill=\\\"#0c2438\\\"/><rect x=\\\"38\\\" y=\\\"48\\\" width=\\\"44\\\" height=\\\"16\\\" rx=\\\"8\\\" fill=\\\"#ffffff\\\"/><rect x=\\\"30\\\" y=\\\"56\\\" width=\\\"13\\\" height=\\\"24\\\" rx=\\\"6\\\" fill=\\\"#ffffff\\\"/><rect x=\\\"79\\\" y=\\\"56\\\" width=\\\"13\\\" height=\\\"24\\\" rx=\\\"6\\\" fill=\\\"#ffffff\\\"/><rect x=\\\"40\\\" y=\\\"62\\\" width=\\\"40\\\" height=\\\"14\\\" rx=\\\"7\\\" fill=\\\"#ffffff\\\"/><rect x=\\\"42\\\" y=\\\"82\\\" width=\\\"7\\\" height=\\\"8\\\" rx=\\\"2\\\" fill=\\\"#ffffff\\\"/><rect x=\\\"71\\\" y=\\\"82\\\" width=\\\"7\\\" height=\\\"8\\\" rx=\\\"2\\\" fill=\\\"#ffffff\\\"/><g clip-path=\\\"url(#lg-clip)\\\"><rect class=\\\"ghost\\\" x=\\\"0\\\" y=\\\"0\\\" width=\\\"120\\\" height=\\\"120\\\" fill=\\\"#0c2438\\\" opacity=\\\"0.85\\\"/></g><g class=\\\"scanline\\\"><line x1=\\\"60\\\" y1=\\\"6\\\" x2=\\\"60\\\" y2=\\\"114\\\" stroke=\\\"#d9a441\\\" stroke-width=\\\"2.5\\\"/><path d=\\\"M60 1 L62 7 L68 9 L62 11 L60 17 L58 11 L52 9 L58 7 Z\\\" fill=\\\"#d9a441\\\"/></g><defs><clipPath id=\\\"lg-clip\\\"><circle cx=\\\"60\\\" cy=\\\"60\\\" r=\\\"58\\\"/></clipPath></defs></svg>\";\nconst logoBlock = BRAND.logoUrl\n  ? '<img class=\"logo\" src=\"' + BRAND.logoUrl + '\" alt=\"' + BRAND.name + '\">'\n  : defaultLogo;\nconst mascotBlock = BRAND.mascot\n  ? '<span class=\"bear\" id=\"bear\" aria-hidden=\"true\">' + BRAND.mascot + '</span>'\n  : '<span class=\"bear\" id=\"bear\" style=\"display:none\" aria-hidden=\"true\"></span>';\n\nconst html = `<!DOCTYPE html>\n<html lang=\"__HTML_LANG__\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>__BRAND_NAME__ — __TITLE_SUFFIX__</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\n<style>\n  :root{--navy:__COLOR_DARK__;--navy2:__COLOR_PRIMARY__;--accent:__COLOR_ACCENT__;--bg:#eef2f6;--card:#fff;--label:#243b53;--border:#cdd9e5;--ease-out:cubic-bezier(.23,1,.32,1);--ease-in-out:cubic-bezier(.77,0,.175,1)}\n  @property --pos{syntax:'<percentage>';inherits:true;initial-value:50%}\n  *{box-sizing:border-box}\n  body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--navy);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;\n    background:\n      radial-gradient(560px 420px at 88% -8%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),\n      radial-gradient(640px 480px at -12% 104%, color-mix(in srgb, var(--navy2) 12%, transparent), transparent 72%),\n      #f7f3ec}\n  .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")}\n  .shell{position:relative;z-index:2;width:100%;max-width:640px;padding:7px;border-radius:32px;\n    background:color-mix(in srgb, var(--navy) 5%, transparent);\n    border:1px solid color-mix(in srgb, var(--navy) 7%, transparent);\n    box-shadow:0 40px 80px -40px color-mix(in srgb, var(--navy) 40%, transparent), 0 18px 44px -28px color-mix(in srgb, var(--navy) 24%, transparent)}\n  .card{background:#fff;border-radius:25px;padding:44px 40px;\n    box-shadow:inset 0 1px 1px rgba(255,255,255,.85), inset 0 0 0 1px color-mix(in srgb, var(--navy) 4%, transparent)}\n  @keyframes rise{from{opacity:0;transform:translateY(14px);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}\n  .card{animation:rise 550ms var(--ease-out) both}\n  #f > label,#f > select,#f > div,#f > button{animation:rise 500ms var(--ease-out) both}\n  #f > *:nth-child(1){animation-delay:40ms}#f > *:nth-child(2){animation-delay:80ms}\n  #f > *:nth-child(3){animation-delay:120ms}#f > *:nth-child(4){animation-delay:160ms}\n  #f > *:nth-child(5){animation-delay:200ms}#f > *:nth-child(6){animation-delay:240ms}\n  #f > *:nth-child(7){animation-delay:280ms}#f > *:nth-child(9){animation-delay:320ms}\n  @media (max-width:600px){body{padding:14px}.shell{border-radius:26px;padding:5px}.card{border-radius:21px;padding:30px 22px}}\n  .logo-wrap{position:relative;width:84px;margin:0 auto 12px;animation:float 3.5s ease-in-out infinite}\n  .logo{width:84px;height:84px;display:block;border-radius:50%}\n  .logo-fallback{display:flex;align-items:center;justify-content:center;font-size:44px;background:#eef2f6}\n  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}\n  .eyebrow{display:block;width:max-content;margin:14px auto 12px;padding:5px 13px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb, var(--navy) 78%, transparent);background:color-mix(in srgb, var(--accent) 9%, transparent);border:1px solid color-mix(in srgb, var(--accent) 24%, transparent)}\n  h1{font-family:'Fraunces',Georgia,serif;font-size:31px;font-weight:600;letter-spacing:-.01em;text-align:center;margin:0 0 6px}\n  .sub{text-align:center;color:#6b7684;font-size:14.5px;margin:0 0 30px}\n  label{display:block;font-size:12.5px;color:#33465c;font-weight:600;letter-spacing:.035em;margin:18px 0 7px}\n  select,textarea,input[type=text]{width:100%;padding:13px 14px;border:1px solid color-mix(in srgb, var(--navy) 11%, transparent);border-radius:14px;font-family:inherit;font-size:14px;color:var(--navy);background:#fcfbf8;transition:border-color 150ms ease,box-shadow 150ms ease}\n  textarea{resize:vertical;min-height:72px;line-height:1.4}\n  select:hover,textarea:hover,input[type=text]:hover{border-color:color-mix(in srgb, var(--accent) 55%, transparent)}\n  select:focus,textarea:focus,input[type=text]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent)}\n  select,select::picker(select){appearance:base-select}\n  select::picker(select){background:#fff;border:1px solid color-mix(in srgb, var(--navy) 12%, transparent);border-radius:14px;box-shadow:0 24px 56px -24px color-mix(in srgb, var(--navy) 38%, transparent);padding:6px;margin-top:6px}\n  select option{padding:10px 12px;border-radius:9px;font-size:14px;color:var(--navy);background:#fff}\n  select option:hover{background:color-mix(in srgb, var(--accent) 9%, #fff)}\n  select option:checked{background:color-mix(in srgb, var(--accent) 14%, #fff);font-weight:600}\n  select option::checkmark{color:var(--accent)}\n  select optgroup{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#8a96a3;padding:10px 12px 2px}\n  select optgroup option{font-size:14px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--navy)}\n  button.copy{width:48px;height:48px;flex:none;margin-top:0;padding:0;border:none;cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center}\n  .copy.copied .ic-check{display:block;margin:0}\n  .copy svg{flex:none}\n  .copy .ic-check{display:none}\n  .copy.copied .ic-check{display:block}\n  .copy.copied .ic-link,.copy.copied .ic-img{display:none}\n  .copy.soft{background:#fff;color:var(--navy);border:1px solid color-mix(in srgb, var(--navy) 14%, transparent);box-shadow:none}\n  .reset svg,.bic svg,.knob svg,.stats-link svg{flex:none;display:block}\n  .reset span{margin-left:8px}\n  .hidden{display:none!important}\n  .sdesc{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:13px;color:#5b6b7b;min-height:18px;line-height:1.4}\n  .sdesc img{width:56px;height:42px;object-fit:cover;border-radius:6px;flex:none}\n  .drop{padding:6px;border-radius:18px;cursor:pointer;background:color-mix(in srgb, var(--navy) 4%, transparent);border:1px solid color-mix(in srgb, var(--navy) 6%, transparent)}\n  .dz-in{border:1.5px dashed color-mix(in srgb, var(--navy) 20%, transparent);border-radius:13px;padding:22px 16px;text-align:center;background:#fcfbf8;transition:border-color 150ms ease,background 150ms ease}\n  .drop.over .dz-in{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 7%, #fff)}\n  @media (hover:hover) and (pointer:fine){.drop:hover .dz-in{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 5%, #fff)}}\n  .drop img{max-height:150px;max-width:100%;border-radius:9px;display:none;margin:0 auto 8px;animation:fadeUp 240ms var(--ease-out)}\n  .dz-hint{color:#5b6b7b;font-size:13px}\n  #pinField:not(.hidden){animation:fadeUp 240ms var(--ease-out)}\n  .hp{display:none}\n  button{position:relative;width:100%;height:54px;margin-top:26px;background:var(--navy2);color:#fff;border:none;border-radius:999px;font-family:inherit;font-size:15.5px;font-weight:700;letter-spacing:.01em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 150ms ease,transform 120ms var(--ease-out);box-shadow:0 14px 28px -14px color-mix(in srgb, var(--navy2) 60%, transparent), inset 0 1px 0 rgba(255,255,255,.16)}\n  .bic{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:17px;transition:transform 250ms var(--ease-out),background 150ms ease}\n  @media (hover:hover) and (pointer:fine){\n    button:hover{background:var(--navy);transform:translateY(-1px)}\n    button:hover .bic{transform:translateY(-50%) translateX(3px);background:rgba(255,255,255,.22)}\n  }\n  button:active{transform:scale(.97)} button:disabled{opacity:.6;cursor:not-allowed;transform:none}\n  .reset{background:#fff;color:var(--navy);border:1px solid color-mix(in srgb, var(--navy) 14%, transparent);height:46px;margin-top:10px;font-size:13.5px;font-weight:600;box-shadow:none}\n  @media (hover:hover) and (pointer:fine){.reset:hover{background:#faf8f4;border-color:color-mix(in srgb, var(--accent) 60%, transparent)}}\n  .status{text-align:center;margin-top:20px;font-size:14px;color:var(--accent);display:none}\n  .elapsed{display:block;margin-top:4px;font-size:12px;color:#5b6b7b}\n  .ghost{transform-box:fill-box;transform-origin:right center;transform:scaleX(.5)}\n  .logo-wrap.working .ghost{animation:sweepghost 1.7s ease-in-out infinite alternate}\n  .logo-wrap.working .scanline{animation:sweepline 1.7s ease-in-out infinite alternate}\n  @keyframes sweepghost{0%{transform:scaleX(.78)}100%{transform:scaleX(.22)}}\n  @keyframes sweepline{0%{transform:translateX(-32px)}100%{transform:translateX(34px)}}\n  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}\n  .result{margin-top:24px;display:none;animation:fadeUp 280ms var(--ease-out) both}\n  .cmp{position:relative;border-radius:16px;overflow:hidden;background:#f0ede6;min-height:120px;touch-action:none;cursor:ew-resize;user-select:none;--pos:50%;transition:--pos 600ms var(--ease-out);box-shadow:0 0 0 6px color-mix(in srgb, var(--navy) 5%, transparent), 0 0 0 7px color-mix(in srgb, var(--navy) 7%, transparent)}\n  .cmp.dragging{transition:none}\n  .cmp img{width:100%;display:block;pointer-events:none}\n  .cmp .before{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;clip-path:inset(0 calc(100% - var(--pos)) 0 0)}\n  .cmp .bar{position:absolute;top:0;left:var(--pos);width:2px;height:100%;background:#fff;transform:translateX(-1px);box-shadow:0 0 4px rgba(0,0,0,.35)}\n  .cmp .knob{position:absolute;top:50%;left:var(--pos);transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--navy);box-shadow:0 4px 14px rgba(0,0,0,.28),0 0 0 3px rgba(255,255,255,.4);pointer-events:none;transition:transform 150ms var(--ease-out)}\n  .cmp input[type=range]{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:ew-resize;touch-action:none;-webkit-appearance:none;appearance:none;background:transparent}\n  .cmp input[type=range]:focus{outline:none}\n  .cmp.dragging .knob{transform:translate(-50%,-50%) scale(1.12)}\n  .tag{position:absolute;top:10px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(12,36,56,.78);color:#fff;padding:4px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.25);pointer-events:none}\n  .tag.l{left:8px}.tag.r{right:8px}\n  .dl{display:block;text-align:center;margin-top:0;text-decoration:none;background:var(--accent);color:#fff;padding:13px;border-radius:999px;font-weight:700;transition:transform 120ms var(--ease-out);box-shadow:0 12px 24px -12px color-mix(in srgb, var(--accent) 65%, transparent), inset 0 1px 0 rgba(255,255,255,.18)}\n  .dl:active{transform:scale(.97)}\n  .err{color:#c0392b}\n  .stats-link{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:18px;font-size:12px;color:#8a96a3;text-decoration:none;transition:color 150ms ease}\n  @media (hover:hover) and (pointer:fine){.stats-link:hover{color:var(--accent)}}\n  .bear{position:absolute;left:-22px;bottom:-2px;font-size:38px;line-height:1;user-select:none;pointer-events:none;transform-origin:bottom right;animation:hug 3s ease-in-out infinite;filter:drop-shadow(0 3px 4px rgba(0,0,0,.22))}\n  @keyframes hug{0%,100%{transform:rotate(16deg)}50%{transform:rotate(24deg) scale(1.06)}}\n  .logo-wrap.working .bear{animation:dance .55s ease-in-out infinite}\n  @keyframes dance{0%,100%{transform:rotate(8deg) scale(1)}50%{transform:rotate(26deg) scale(1.14) translateY(-3px)}}\n  @media (prefers-reduced-motion:reduce){\n    .logo-wrap,.bear,.card,.result,.drop img,#pinField:not(.hidden){animation:none}\n    #f > label,#f > select,#f > div,#f > button{animation:none}\n    .logo-wrap.working .ghost,.logo-wrap.working .scanline,.logo-wrap.working .bear{animation:none}\n    .logo-wrap.working{animation:rmPulse 1.6s ease-in-out infinite}\n    @keyframes rmPulse{0%,100%{opacity:1}50%{opacity:.55}}\n    .cmp{transition:none}\n    button,.dl{transition:background 150ms ease}\n    .bic{transition:background 150ms ease}\n  }\n</style>\n</head>\n<body>\n<div class=\"grain\" aria-hidden=\"true\"></div>\n<div class=\"shell\">\n<div class=\"card\">\n  <div class=\"logo-wrap\">\n    __LOGO_BLOCK__\n    __MASCOT_BLOCK__\n  </div>\n  <span class=\"eyebrow\">__BRAND_NAME__</span>\n  <h1 data-i18n=\"title\">Home Staging AI</h1>\n  <p class=\"sub\">__TAGLINE__</p>\n  <form id=\"f\">\n    <label for=\"action\" data-i18n=\"actionLabel\">What do you want to do?</label>\n    <select id=\"action\" name=\"action\"></select>\n    <div id=\"roomField\">\n      <label for=\"room\" data-i18n=\"roomLabel\">What is this room?</label>\n      <select id=\"room\" name=\"room\"></select>\n    </div>\n    <div id=\"styleField\">\n      <label for=\"style\" data-i18n=\"styleLabel\">Which style / brand?</label>\n      <select id=\"style\" name=\"style\"></select>\n      <div class=\"sdesc\" id=\"sdesc\"></div>\n    </div>\n    <div id=\"photoField\">\n      <label data-i18n=\"photoLabel\">Your photo</label>\n      <div class=\"drop\" id=\"drop\">\n        <div class=\"dz-in\">\n          <img id=\"preview\" alt=\"\">\n          <span class=\"dz-hint\" id=\"dzHint\" data-i18n=\"photoHint\">Click or drop an image here</span>\n        </div>\n      </div>\n      <input type=\"file\" id=\"photo\" accept=\"image/*\" style=\"display:none\">\n    </div>\n    <div id=\"commentField\">\n      <label for=\"comment\" data-i18n=\"commentLabel\">Special instructions (optional)</label>\n      <textarea id=\"comment\" name=\"comment\" rows=\"3\"></textarea>\n    </div>\n    <div id=\"pinField\" class=\"hidden\">\n      <label for=\"pin\" data-i18n=\"pinLabel\">Access code</label>\n      <input type=\"text\" id=\"pin\" inputmode=\"numeric\" autocomplete=\"off\">\n      <div class=\"sdesc err\" id=\"pinMsg\"></div>\n    </div>\n    <input class=\"hp\" type=\"text\" name=\"website\" tabindex=\"-1\" autocomplete=\"off\" aria-hidden=\"true\">\n    <button type=\"submit\" id=\"btn\"><span data-i18n=\"generate\">Generate</span><span class=\"bic\" aria-hidden=\"true\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h13\"/><path d=\"M13 6l6 6-6 6\"/></svg></span></button>\n  </form>\n  <div class=\"status\" id=\"status\">\n    <span id=\"statusText\"></span>\n    <span class=\"elapsed\" id=\"elapsed\"></span>\n    <button type=\"button\" class=\"reset\" id=\"retry\" style=\"display:none\" data-i18n=\"retry\">Try again</button>\n  </div>\n  <div class=\"result\" id=\"result\">\n    <div class=\"cmp\" id=\"cmp\">\n      <img id=\"after\" alt=\"staged result\">\n      <img id=\"before\" class=\"before\" alt=\"original\">\n      <div class=\"bar\"></div>\n      <div class=\"knob\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9 8l-4 4 4 4\"/><path d=\"M15 8l4 4-4 4\"/></svg></div>\n      <span class=\"tag l\" data-i18n=\"before\">Before</span>\n      <span class=\"tag r\" data-i18n=\"after\">After</span>\n      <input type=\"range\" id=\"cmpRange\" min=\"0\" max=\"100\" step=\"0.2\" value=\"50\">\n    </div>\n    <div style=\"display:flex;gap:10px;align-items:center;margin-top:16px\">\n      <a class=\"dl\" id=\"dl\" style=\"flex:1\" download=\"staging-result.jpg\" data-i18n=\"download\">Download result</a>\n      <button type=\"button\" class=\"dl copy\" id=\"copyImg\"><svg class=\"ic-img\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"3\"/><circle cx=\"9\" cy=\"10\" r=\"1.6\"/><path d=\"m21 15-4.5-4.5L9 18\"/></svg><svg class=\"ic-check\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg></button>\n      <button type=\"button\" class=\"dl copy soft\" id=\"copy\"><svg class=\"ic-link\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"/><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"/></svg><svg class=\"ic-check\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg></button>\n    </div>\n    <div style=\"display:flex;gap:10px\">\n      <button type=\"button\" class=\"reset\" id=\"again\" style=\"flex:1\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M21 12a9 9 0 1 1-2.64-6.36\"/><path d=\"M21 3v6h-6\"/></svg><span data-i18n=\"regenerate\">Regenerate</span></button>\n      <button type=\"button\" class=\"reset\" id=\"reset\" style=\"flex:1\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg><span data-i18n=\"startOver\">New staging</span></button>\n    </div>\n  </div>\n  <a class=\"stats-link\" href=\"home-staging-stats\" target=\"_blank\" rel=\"noopener\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M4 20h16\"/><path d=\"M7 16v-5\"/><path d=\"M12 16V7\"/><path d=\"M17 16v-8\"/></svg><span data-i18n=\"statsLink\">Usage &amp; costs</span></a>\n</div>\n</div>\n<script>\nconst L=__LANG_JSON__,STYLES=__STYLES_JSON__,THUMBS=__THUMBS_JSON__;\nconst $=function(id){return document.getElementById(id)};\nconst f=$('f'),btn=$('btn'),statusEl=$('status'),statusText=$('statusText'),elapsedEl=$('elapsed'),\n  resultEl=$('result'),logoWrap=document.querySelector('.logo-wrap'),\n  actionSel=$('action'),roomSel=$('room'),styleSel=$('style'),styleField=$('styleField'),roomField=$('roomField'),\n  commentField=$('commentField'),drop=$('drop'),photoIn=$('photo'),preview=$('preview'),dzHint=$('dzHint'),\n  sdesc=$('sdesc'),retryBtn=$('retry'),againBtn=$('again'),cmp=$('cmp'),\n  pinField=$('pinField'),pinInput=$('pin'),pinMsg=$('pinMsg'),copyBtn=$('copy'),copyImgBtn=$('copyImg');\ndocument.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');if(L[k])el.textContent=L[k];});\n$('comment').placeholder=L.commentPlaceholder;\ncopyBtn.title=L.copyLink;copyBtn.setAttribute('aria-label',L.copyLink);\ncopyImgBtn.title=L.copyImage;copyImgBtn.setAttribute('aria-label',L.copyImage);\n$('after').alt=L.after;$('before').alt=L.before;\nconst ACTIONS=[['Furnish (Staging)',L.actions.furnish],['Empty the room',L.actions.empty],['Clean the room',L.actions.clean],['Upscaler',L.actions.upscale]];\nACTIONS.forEach(function(a){var o=document.createElement('option');o.value=a[0];o.textContent=a[1];actionSel.appendChild(o);});\nconst ROOM_VALUES=['LIVING ROOM','KITCHEN','BEDROOM','KIDS ROOM','BALCONY','OFFICE','BATHROOM','STUDIO','LARGE LIVING ROOM'];\nROOM_VALUES.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=L.rooms[v]||v;roomSel.appendChild(o);});\nfunction stylesFor(room){return STYLES.filter(function(s){return s.r.indexOf('*')>-1||s.r.indexOf(room)>-1||(room==='LARGE LIVING ROOM'&&s.r.indexOf('LIVING ROOM')>-1);});}\nfunction renderStyles(){var room=roomSel.value,keep=styleSel.value;styleSel.innerHTML='';var last=null,og=null;\n  stylesFor(room).forEach(function(s){if(s.g!==last){og=document.createElement('optgroup');og.label=L.groups[s.g]||s.g;styleSel.appendChild(og);last=s.g;}\n    var o=document.createElement('option');o.value=s.v;o.textContent=s.v;og.appendChild(o);});\n  for(var i=0;i<styleSel.options.length;i++){if(styleSel.options[i].value===keep){styleSel.value=keep;break;}}\n  updateDesc();}\nfunction updateDesc(){var s=null;for(var i=0;i<STYLES.length;i++){if(STYLES[i].v===styleSel.value){s=STYLES[i];break;}}\n  sdesc.innerHTML='';if(!s)return;\n  var t=THUMBS[s.v];if(t){var im=document.createElement('img');im.src=t;im.alt=s.v;sdesc.appendChild(im);}\n  sdesc.appendChild(document.createTextNode(s.d||''));}\nfunction updateVis(){var a=actionSel.value,up=(a==='Upscaler'),furnish=(a==='Furnish (Staging)');\n  roomField.classList.toggle('hidden',up);styleField.classList.toggle('hidden',!furnish);commentField.classList.toggle('hidden',up);}\nactionSel.addEventListener('change',updateVis);\nroomSel.addEventListener('change',renderStyles);\nstyleSel.addEventListener('change',updateDesc);\nvar rawFile=null,beforeURL=null,lastFd=null,lastPin='',msgTimer=null,secTimer=null,genToken=0;\ndrop.addEventListener('click',function(){photoIn.click();});\nphotoIn.addEventListener('change',function(){if(photoIn.files[0])selectFile(photoIn.files[0]);});\n['dragover','dragenter'].forEach(function(e){drop.addEventListener(e,function(ev){ev.preventDefault();drop.classList.add('over');});});\n['dragleave','drop'].forEach(function(e){drop.addEventListener(e,function(ev){ev.preventDefault();drop.classList.remove('over');});});\ndrop.addEventListener('drop',function(ev){var file=ev.dataTransfer.files[0];if(file)selectFile(file);});\nfunction selectFile(file){\n  if(!file.type || file.type.indexOf('image/')!==0){alert(L.notImage);return;}\n  if(file.size>15*1024*1024){alert(L.tooBig);return;}\n  rawFile=file;if(beforeURL)URL.revokeObjectURL(beforeURL);beforeURL=URL.createObjectURL(file);\n  preview.src=beforeURL;preview.style.display='block';dzHint.textContent=file.name;}\nasync function compressed(file){try{\n  var bmp=await createImageBitmap(file,{imageOrientation:'from-image'});\n  var MAX=2048,sc=Math.min(1,MAX/Math.max(bmp.width,bmp.height));\n  if(sc>=1&&file.size<3*1024*1024)return file;\n  var c=document.createElement('canvas');c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);\n  c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);\n  var blob=await new Promise(function(r){c.toBlob(r,'image/jpeg',0.9);});\n  return (blob&&blob.size<file.size)?new File([blob],'photo.jpg',{type:'image/jpeg'}):file;\n}catch(_){return file;}}\nasync function doGenerate(){\n  if(f.website.value)return;\n  if(!rawFile){alert(L.notImage);return;}\n  btn.disabled=true;\n  var file=await compressed(rawFile);\n  var fd=new FormData();fd.append('photo',file);fd.append('action',actionSel.value);fd.append('room',roomSel.value);\n  fd.append('style',styleSel.value||'Modern');fd.append('comment',$('comment').value||'');\n  var pin=(pinInput.value||'').trim();\n  try{pin=pin||localStorage.getItem('hs_pin')||'';}catch(_){}\n  if(pin)fd.append('pin',pin);\n  lastPin=pin;\n  lastFd=fd;submitJob(fd);}\nf.addEventListener('submit',function(e){e.preventDefault();doGenerate();});\nfunction startProgress(){var i=0,sec=0;\n  statusText.className='';statusText.textContent=L.sending;elapsedEl.textContent='';\n  statusEl.style.display='block';retryBtn.style.display='none';resultEl.style.display='none';\n  logoWrap.classList.add('working');btn.disabled=true;\n  statusEl.scrollIntoView({behavior:'smooth',block:'center'});\n  clearInterval(msgTimer);clearInterval(secTimer);\n  msgTimer=setInterval(function(){statusText.textContent=L.generating[i++%L.generating.length];},4000);\n  secTimer=setInterval(function(){elapsedEl.textContent=(++sec)+' s';},1000);}\nfunction stopProgress(){clearInterval(msgTimer);clearInterval(secTimer);logoWrap.classList.remove('working');btn.disabled=false;}\nasync function submitJob(fd){var myToken=++genToken;startProgress();var jobId,d;\n  try{var r=await fetch('home-staging-submit',{method:'POST',body:fd});if(!r.ok)throw 0;d=await r.json();}\n  catch(_){if(myToken!==genToken)return;return fail(L.uploadFailed);}\n  if(myToken!==genToken)return;\n  if(d.error==='bot')return fail(L.genFailed);\n      if(d.error==='pin_required'||d.error==='pin_invalid')return askPin(d.error==='pin_invalid');\n  if(d.error==='quota')return fail(L.quotaReached);\n  if(d.error==='bad_file')return fail(L.badFile);\n  jobId=d.jobId;if(!jobId)return fail(L.uploadFailed);\n  if(lastPin){try{localStorage.setItem('hs_pin',lastPin);}catch(_){}}\n  pinMsg.textContent='';\n  statusText.textContent=L.generating[0];poll(jobId,0,myToken);}\nfunction askPin(invalid){stopProgress();statusEl.style.display='none';\n  try{localStorage.removeItem('hs_pin');}catch(_){}\n  pinField.classList.remove('hidden');\n  pinMsg.textContent=invalid?L.pinInvalid:'';\n  pinInput.focus();pinField.scrollIntoView({behavior:'smooth',block:'center'});}\nasync function poll(jobId,n,token){if(token!==genToken)return;if(n>45)return fail(L.tooLong);\n  try{var r=await fetch('home-staging-status?jobId='+encodeURIComponent(jobId));var d=await r.json();\n    if(token!==genToken)return;\n    if(d.status==='done')return show(jobId);\n    if(d.status==='error')return fail(d.errorMessage||L.genFailed);}catch(_){}\n  if(token!==genToken)return;\n  setTimeout(function(){poll(jobId,n+1,token);},4000);}\nfunction show(jobId){stopProgress();statusEl.style.display='none';\n  $('before').src=beforeURL;var url='home-staging-image?jobId='+encodeURIComponent(jobId);\n  $('after').src=url;$('dl').href=url;\n  cmp.classList.add('dragging');cmp.style.setProperty('--pos','0%');\n  $('cmpRange').value=50;\n  resultEl.style.display='block';\n  setTimeout(function(){\n    cmp.classList.remove('dragging');cmp.style.setProperty('--pos','50%');\n  },60);}\nfunction fail(msg){stopProgress();statusText.className='err';statusText.textContent=msg;elapsedEl.textContent='';\n  retryBtn.style.display=lastFd?'inline-block':'none';}\nretryBtn.addEventListener('click',function(){if(lastFd)submitJob(lastFd);});\nagainBtn.addEventListener('click',function(){doGenerate();});\nfunction flashCopied(b){b.classList.add('copied');setTimeout(function(){b.classList.remove('copied');},1500);}\nasync function toPng(url){\n  var r=await fetch(url);var b=await r.blob();\n  var bmp=await createImageBitmap(b);\n  var c=document.createElement('canvas');c.width=bmp.width;c.height=bmp.height;\n  c.getContext('2d').drawImage(bmp,0,0);\n  return new Promise(function(res){c.toBlob(res,'image/png');});}\ncopyBtn.addEventListener('click',async function(){\n  var url=new URL($('dl').getAttribute('href'),location.href).href;\n  try{await navigator.clipboard.writeText(url);}catch(_){window.prompt(L.copyLink,url);}\n  flashCopied(copyBtn);});\ncopyImgBtn.addEventListener('click',async function(){\n  var href=$('dl').getAttribute('href');\n  var abs=new URL(href,location.href).href;\n  try{\n    if(!window.ClipboardItem)throw 0;\n    await navigator.clipboard.write([new ClipboardItem({'image/png':toPng(href)})]);\n    flashCopied(copyImgBtn);\n  }catch(e){\n    try{await navigator.clipboard.writeText(abs);flashCopied(copyImgBtn);}\n    catch(_){window.prompt(L.copyLink,abs);}\n  }});\nvar cmpRange=$('cmpRange');\ncmpRange.setAttribute('aria-label',L.before+' / '+L.after);\ncmpRange.addEventListener('input',function(){\n  cmp.classList.add('dragging');\n  cmp.style.setProperty('--pos',cmpRange.value+'%');});\ncmpRange.addEventListener('change',function(){cmp.classList.remove('dragging');});\ncmpRange.addEventListener('pointerup',function(){cmp.classList.remove('dragging');});\ncmpRange.addEventListener('blur',function(){cmp.classList.remove('dragging');});\n$('reset').addEventListener('click',function(){\n  genToken++;stopProgress();\n  if(beforeURL){URL.revokeObjectURL(beforeURL);beforeURL=null;}\n  rawFile=null;lastFd=null;preview.style.display='none';preview.src='';dzHint.textContent=L.photoHint;\n  f.reset();updateVis();renderStyles();resultEl.style.display='none';statusEl.style.display='none';\n  window.scrollTo({top:0,behavior:'smooth'});});\nupdateVis();renderStyles();\n</script>\n</body>\n</html>`\n  .split(\"__BRAND_NAME__\").join(BRAND.name)\n  .split(\"__TAGLINE__\").join(BRAND.tagline || L.tagline)\n  .split(\"__LOGO_BLOCK__\").join(logoBlock)\n  .split(\"__MASCOT_BLOCK__\").join(mascotBlock)\n  .split(\"__COLOR_DARK__\").join(BRAND.colorDark)\n  .split(\"__COLOR_PRIMARY__\").join(BRAND.colorPrimary)\n  .split(\"__COLOR_ACCENT__\").join(BRAND.colorAccent)\n  .split(\"__HTML_LANG__\").join(lang)\n  .split(\"__TITLE_SUFFIX__\").join(L.title)\n  .split(\"__LANG_JSON__\").join(JSON.stringify(L))\n  .split(\"__STYLES_JSON__\").join(JSON.stringify(stylesLocalized))\n  .split(\"__THUMBS_JSON__\").join(JSON.stringify(STYLE_THUMBS));\n\nreturn [{ json: { html } }];"
+      },
+      "id": "02f5e37d-4a20-4b89-83a2-898d8a21ccdc",
+      "name": "Page HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "id": "422bd5e0-3739-451c-a9cb-4a06869173ee",
+      "name": "Send HTML",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "home-staging-submit",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "e62bec2e-a981-44b4-83ce-0fb5346efb9f",
+      "name": "Submit POST",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        256
+      ],
+      "webhookId": "6e99d7c4-a068-4364-ba8b-f32a47aef5f3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ====== ACCESS SETTINGS (edit here) ======\nconst ACCESS_PIN = \"\";   // e.g. \"4821\" — empty = no access code required (set one for public use!)\nconst DAILY_LIMIT = 30;  // max generations per day. 0 = unlimited (only for trusted/internal use)\n// =========================================\n\nconst item = items[0];\nconst body = item.json.body || item.json;\nconst { pin, website, ...payload } = body;\n\n// Unguessable job id: no timestamp prefix -> not enumerable. Uses Web Crypto\n// when the sandbox exposes it, else a long Math.random token (n8n task-runner\n// blocks crypto). For true CSPRNG ids, set NODE_FUNCTION_ALLOW_BUILTIN=crypto.\nconst jobId = (typeof crypto !== \"undefined\" && crypto.randomUUID) ? crypto.randomUUID().replace(/-/g, \"\") : Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join(\"\");\n\nconst base = { ...payload, jobId, _pinOk: false, _limit: DAILY_LIMIT };\n\n// Bot honeypot — checked server-side (a direct POST bypasses the browser check)\nif ((website || \"\").trim()) {\n  // \"bot\" et non \"pin_required\" : sinon le front ouvre la modale de PIN et EFFACE\n  // le code memorise d'un utilisateur legitime (autofill du navigateur).\n  return [{ json: { ...base, denyReason: \"bot\" }, binary: item.binary }];\n}\n\n// Upload validation — a direct POST could skip the client-side checks\nconst photo = item.binary && item.binary.photo;\nconst mimeOk = photo && String(photo.mimeType || \"\").indexOf(\"image/\") === 0;\n// n8n expose fileSize comme une CHAINE formatee (\"2.1 MB\"), jamais un nombre :\n// l'ancien test `typeof fileSize !== \"number\"` etait donc toujours vrai -> garde-fou mort.\nconst parseSize = (fs) => {\n  if (typeof fs === \"number\") return fs;\n  const m = String(fs || \"\").trim().match(/^([\\d.]+)\\s*(B|kB|KB|MB|GB)$/i);\n  if (!m) return null; // format inconnu -> on ne bloque pas\n  const mult = { b: 1, kb: 1024, mb: 1024 * 1024, gb: 1024 * 1024 * 1024 };\n  return parseFloat(m[1]) * mult[m[2].toLowerCase()];\n};\nconst photoBytes = photo ? parseSize(photo.fileSize) : null;\nconst sizeOk = !photo || photoBytes === null || photoBytes <= 16 * 1024 * 1024;\nif (!mimeOk || !sizeOk) {\n  return [{ json: { ...base, denyReason: \"bad_file\" }, binary: item.binary }];\n}\n\n// Access code\nconst pinOk = !ACCESS_PIN || (pin || \"\") === ACCESS_PIN;\nconst denyReason = pinOk ? \"\" : (pin ? \"pin_invalid\" : \"pin_required\");\nreturn [{ json: { ...payload, jobId, _pinOk: pinOk, _limit: DAILY_LIMIT, denyReason }, binary: item.binary }];"
+      },
+      "id": "4a39e8d5-64b8-48e6-a192-ff24dc0b6e1a",
+      "name": "Access gate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json._pinOk }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "id": "6da16790-3c39-4d98-8a28-3924313286ac"
+            }
+          ],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          }
+        },
+        "options": {}
+      },
+      "id": "84dd930f-0816-46b0-82d8-1e10c1b6549f",
+      "name": "Pin ok",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "staging_jobs",
+          "cachedResultName": "staging_jobs"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "day",
+              "condition": "eq",
+              "keyValue": "={{ $now.toFormat('yyyy-MM-dd') }}"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "id": "1f2d664b-c01f-4158-8218-799fe63f88f1",
+      "name": "Count today",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        256
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const g = $('Access gate').first();\n// Daily limit: the node default (DAILY_LIMIT in Access gate) is overridden by\n// the value saved from the Usage & costs dashboard, if any.\nconst sd = $getWorkflowStaticData('global');\nconst override = (sd && sd.dailyLimit !== undefined && sd.dailyLimit !== null && sd.dailyLimit !== '') ? Number(sd.dailyLimit) : null;\nconst limit = (override !== null && !isNaN(override)) ? override : (g.json._limit || 0);\nconst used = items.filter(i => i.json && i.json.jobId).length;\nconst ok = !limit || used < limit;\nreturn [{ json: { ...g.json, _quotaOk: ok, _limit: limit, denyReason: ok ? \"\" : \"quota\" }, binary: g.binary }];"
+      },
+      "id": "08037e8a-c97b-40c1-a824-17e1789ef978",
+      "name": "Quota gate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json._quotaOk }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "id": "6073b2a1-f157-40db-8a93-5f6389389827"
+            }
+          ],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          }
+        },
+        "options": {}
+      },
+      "id": "410feb2d-168f-4a5e-aa43-6ae1945ff811",
+      "name": "Quota ok",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"error\": $json.denyReason } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "a38059cb-8bef-4114-b2d4-cc548b88127c",
+      "name": "Reply denied",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"jobId\": $json.jobId } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "4f3edaa7-c6df-4e1d-bab3-f9213056908c",
+      "name": "Reply jobId",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1152,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// =========================================================================\n// 1. ACTION DETECTION\n// Reads the explicit `action` field (the form always sends it). Never scans\n// free text (comment) or generated values (jobId) — a comment like\n// \"clean modern look\" must NOT turn a staging into a cleaning job.\nconst actionSource = String(\n    items[0].json.action ||\n    items[0].json['What do you want to do?'] ||\n    items[0].json['Que voulez-vous faire ?'] ||\n    \"\"\n).toUpperCase();\n\nlet chosenAction = \"FURNISH\";\nlet actionEN = \"FURNISH\";\n\nif (actionSource.includes(\"EMPTY\") || actionSource.includes(\"VIDER\") || actionSource.includes(\"LEEREN\")) {\n    chosenAction = \"EMPTY\";\n    actionEN = \"EMPTY\";\n} else if (actionSource.includes(\"CLEAN\") || actionSource.includes(\"NETTOYER\") || actionSource.includes(\"AUFRÄUM\")) {\n    chosenAction = \"CLEAN\";\n    actionEN = \"CLEAN\";\n} else if (actionSource.includes(\"UPSCALE\") || actionSource.includes(\"4K\") || actionSource.includes(\"HD\") || actionSource.includes(\"HOCHSKALIER\")) {\n    chosenAction = \"UPSCALE\";\n    actionEN = \"UPSCALE\";\n}\n\n// =========================================================================\n// 2. STYLE DETECTION (normalized to simple English names)\nconst rawStyle = (items[0].json.style || items[0].json['Which style / brand do you want?'] || items[0].json['Quel style / marque souhaitez-vous ?'] || \"MODERN\").toUpperCase();\nlet chosenStyle = rawStyle.replace(/\\s*\\(.*?\\)/g, '').trim();\n\nif (chosenStyle.includes(\"SIGNATURE\")) chosenStyle = \"SIGNATURE STYLE\";\nif (chosenStyle.includes(\"ART DECO\") || chosenStyle.includes(\"ART DÉCO\")) chosenStyle = \"ART DECO\";\nif (chosenStyle === \"MODERNE\" || chosenStyle === \"MODERN\") chosenStyle = \"MODERN\";\nif (chosenStyle.includes(\"LUXURY MODERN\") || chosenStyle.includes(\"MODERNE LUXE\")) chosenStyle = \"LUXURY MODERN\";\nif (chosenStyle.includes(\"ULTRA LUXE\") || chosenStyle.includes(\"ULTRA LUXURY\")) chosenStyle = \"ULTRA LUXURY\";\nif (chosenStyle.includes(\"SCANDINAV\")) chosenStyle = \"SCANDINAVIAN\";\nif (chosenStyle.includes(\"INDUSTRI\")) chosenStyle = \"INDUSTRIAL\";\nif (chosenStyle.includes(\"ECLECTIC\") || chosenStyle.includes(\"ÉCLECTIQUE\")) chosenStyle = \"ECLECTIC CHIC\";\nif (chosenStyle === \"JAPANDI\") chosenStyle = \"JAPANDI\";\nif (/\\bNATURE\\b/.test(chosenStyle) || chosenStyle.includes(\"BIOPHILI\")) chosenStyle = \"NATURE INSPIRED\";\nif (chosenStyle.includes(\"BOHO\") || chosenStyle.includes(\"BOHÈME\")) chosenStyle = \"BOHO CHIC\";\nif (chosenStyle.includes(\"COASTAL\") || chosenStyle.includes(\"MEDITERRAN\")) chosenStyle = \"COASTAL\";\nif (chosenStyle.includes(\"PARISIAN\") || chosenStyle.includes(\"HAUSSMANN\")) chosenStyle = \"PARISIAN CHIC\";\nif (chosenStyle.includes(\"MID-CENTURY\")) chosenStyle = \"MID-CENTURY\";\nif (chosenStyle.includes(\"LIGNE ROSET\")) chosenStyle = \"LIGNE ROSET\";\nif (chosenStyle.includes(\"AMERICAN LUXURY\") || chosenStyle.includes(\"RESTORATION\") || chosenStyle === \"RH\") chosenStyle = \"AMERICAN LUXURY\";\nif (chosenStyle.includes(\"HOTEL\") || chosenStyle.includes(\"LOUNGE\")) chosenStyle = \"HOTEL LOUNGE\";\nif (chosenStyle.includes(\"CALIFORNIA\")) chosenStyle = \"CALIFORNIA MODERN\";\nif (chosenStyle.includes(\"PORCELANOSA\")) chosenStyle = \"PORCELANOSA\";\nif (chosenStyle === \"POLIFORM\") chosenStyle = \"POLIFORM\";\n\n// =========================================================================\n// 3. ROOM DETECTION\n// Reads the explicit `room` field (the form always sends it). The fallback\n// scan (for direct API calls) only looks at user-named fields — never the\n// comment, the style, the jobId or internal keys, so free text and random\n// ids can never hijack the detected room.\nconst roomSource = String(\n    items[0].json.room ||\n    items[0].json['What is this room?'] ||\n    items[0].json['Quelle est cette pièce ?'] ||\n    \"\"\n).toUpperCase();\n\nlet roomScan = roomSource;\nif (!roomScan) {\n    const EXCLUDED_KEYS = [\"style\", \"comment\", \"jobId\", \"pin\", \"website\", \"denyReason\",\n        \"Which style / brand do you want?\", \"Quel style / marque souhaitez-vous ?\"];\n    roomScan = Object.keys(items[0].json)\n        .filter(k => EXCLUDED_KEYS.indexOf(k) === -1 && k.charAt(0) !== \"_\")\n        .map(k => String(items[0].json[k]).toUpperCase())\n        .join(\" \");\n}\n\nlet roomEN = \"LIVING ROOM\";\n\nif (roomScan.includes(\"GRAND SALON\") || roomScan.includes(\"LARGE LIVING ROOM\") || roomScan.includes(\"GROSSES WOHNZIMMER\")) {\n    roomEN = \"LARGE LIVING ROOM\";\n} else if (roomScan.includes(\"STUDIO\")) {\n    roomEN = \"STUDIO APARTMENT\";\n} else if (roomScan.includes(\"KITCHEN\") || roomScan.includes(\"CUISINE\") || roomScan.includes(\"KÜCHE\")) {\n    roomEN = \"KITCHEN\";\n} else if (roomScan.includes(\"KIDS\") || roomScan.includes(\"ENFANT\") || roomScan.includes(\"KINDERZIMMER\")) {\n    roomEN = \"KIDS ROOM\";\n} else if (roomScan.includes(\"BEDROOM\") || roomScan.includes(\"CHAMBRE\") || roomScan.includes(\"SCHLAFZIMMER\")) {\n    roomEN = \"BEDROOM\";\n} else if (roomScan.includes(\"BALCONY\") || roomScan.includes(\"BALCON\") || roomScan.includes(\"BALKON\")) {\n    roomEN = \"BALCONY\";\n} else if (roomScan.includes(\"OFFICE\") || roomScan.includes(\"BUREAU\") || roomScan.includes(\"BÜRO\")) {\n    roomEN = \"OFFICE\";\n} else if (roomScan.includes(\"BATH\") || roomScan.includes(\"BAIN\") || roomScan.includes(\"BAD\")) {\n    roomEN = \"BATHROOM\";\n}\n\n// =========================================================================\n// 4. BRAND-SAFETY SHIELD (keeps kitchen brands in kitchens, etc.)\nconst kitchenBrands = [\"BULTHAUP\", \"BOFFI\", \"ARTHUR BONNET\"];\nconst livingBrands = [\"VITRA\", \"BOCONCEPT\", \"ROCHE BOBOIS\", \"MINOTTI\", \"KNOLL\", \"HERMAN MILLER\", \"LIGNE ROSET\", \"AMERICAN LUXURY\"];\n\n// Rule 1: block pure kitchen brands outside the kitchen\nif (roomEN !== \"KITCHEN\" && kitchenBrands.includes(chosenStyle)) {\n    chosenStyle = \"LUXURY MODERN\";\n}\n// Rule 2: block living-room furniture brands inside the kitchen\nif (roomEN === \"KITCHEN\" && livingBrands.includes(chosenStyle)) {\n    chosenStyle = \"ULTRA LUXURY\";\n}\n// Rule 3: Poliform allowed ONLY in Kitchen and Bedroom\nif (chosenStyle === \"POLIFORM\" && roomEN !== \"KITCHEN\" && roomEN !== \"BEDROOM\") {\n    chosenStyle = \"LUXURY MODERN\";\n}\n// Rule 4: Porcelanosa allowed ONLY in Bathroom\nif (chosenStyle === \"PORCELANOSA\" && roomEN !== \"BATHROOM\") {\n    chosenStyle = \"ULTRA LUXURY\";\n}\n// Rule 5: enforce the full catalog room restrictions server-side too.\n// The form already filters styles per room — this guards direct API calls.\n// ROOM_RULES is injected at build time from the same catalog the form uses,\n// so the two can never drift apart.\nconst ROOM_RULES = {\"SIGNATURE STYLE\":[\"*\"],\"MODERN\":[\"*\"],\"LUXURY MODERN\":[\"*\"],\"ULTRA LUXURY\":[\"LIVING ROOM\",\"BEDROOM\",\"BATHROOM\"],\"SCANDINAVIAN\":[\"LIVING ROOM\",\"BEDROOM\",\"KIDS ROOM\",\"STUDIO\"],\"INDUSTRIAL\":[\"LIVING ROOM\",\"KITCHEN\",\"OFFICE\",\"STUDIO\"],\"MID-CENTURY\":[\"LIVING ROOM\",\"OFFICE\",\"STUDIO\"],\"ART DECO\":[\"LIVING ROOM\",\"BEDROOM\"],\"PARISIAN CHIC\":[\"LIVING ROOM\",\"BEDROOM\"],\"WABI-SABI\":[\"LIVING ROOM\",\"BEDROOM\",\"STUDIO\"],\"ECLECTIC CHIC\":[\"LIVING ROOM\"],\"JAPANDI\":[\"LIVING ROOM\",\"BEDROOM\",\"STUDIO\"],\"NATURE INSPIRED\":[\"LIVING ROOM\",\"BATHROOM\",\"BALCONY\"],\"BOHO CHIC\":[\"LIVING ROOM\",\"BEDROOM\",\"BALCONY\",\"STUDIO\"],\"COASTAL\":[\"LIVING ROOM\",\"BEDROOM\",\"BALCONY\",\"STUDIO\"],\"HOTEL LOUNGE\":[\"LARGE LIVING ROOM\"],\"CALIFORNIA MODERN\":[\"LARGE LIVING ROOM\"],\"AMERICAN LUXURY\":[\"LARGE LIVING ROOM\"],\"VITRA\":[\"LIVING ROOM\",\"OFFICE\"],\"BOCONCEPT\":[\"LIVING ROOM\",\"BEDROOM\",\"STUDIO\"],\"ROCHE BOBOIS\":[\"LIVING ROOM\",\"BEDROOM\"],\"MINOTTI\":[\"LIVING ROOM\"],\"KNOLL\":[\"LIVING ROOM\",\"OFFICE\"],\"HERMAN MILLER\":[\"OFFICE\"],\"LIGNE ROSET\":[\"LIVING ROOM\"],\"ARTHUR BONNET\":[\"KITCHEN\"],\"BULTHAUP\":[\"KITCHEN\"],\"BOFFI\":[\"KITCHEN\"],\"POLIFORM\":[\"KITCHEN\",\"BEDROOM\"],\"PORCELANOSA\":[\"BATHROOM\"]};\nconst allowedRooms = ROOM_RULES[chosenStyle];\nif (allowedRooms && allowedRooms.indexOf(\"*\") === -1) {\n    const roomAllowed =\n        allowedRooms.indexOf(roomEN) !== -1 ||\n        (roomEN === \"LARGE LIVING ROOM\" && allowedRooms.indexOf(\"LIVING ROOM\") !== -1) ||\n        (roomEN === \"STUDIO APARTMENT\" && allowedRooms.indexOf(\"STUDIO\") !== -1);\n    if (!roomAllowed) chosenStyle = \"LUXURY MODERN\";\n}\n\n// =========================================================================\n// 5. STYLE LIBRARY\n// ⭐ \"SIGNATURE STYLE\" is YOUR slot: describe your agency's look (palette,\n//    furniture language, lighting, art, mood, strict negatives). The more\n//    specific you are, the more consistent the results. Edit the text below.\nconst styleLibrary = {\n    \"SIGNATURE STYLE\": \"Bright airy interiors with white walls and warm light oak floors, sculptural contemporary furniture, ONE bold color accent varied each generation (teal, mustard, dusty pink, emerald), one statement pendant lamp, one large abstract artwork, one or two plants in minimal pots. MOOD: joyful, curated, like a boutique design gallery. STRICT NEGATIVE: no rustic farmhouse, no clutter, no brown leather.\",\n    \"MODERN\": \"smooth textures, neutral colors, glass and metal, bright atmosphere.\",\n    \"LUXURY MODERN\": \"noble materials, sleek finishes, brass touches, contemporary design furniture.\",\n    \"ULTRA LUXURY\": \"omnipresent marble, precious metals, velvet, exotic wood, dramatic lighting.\",\n    \"SCANDINAVIAN\": \"light wood dominant, matte pastels, cozy textiles, hygge vibe.\",\n    \"INDUSTRIAL\": \"brick/concrete look, raw wood, earthy tones.\",\n    \"WABI-SABI\": \"elegant raw minimalism, textured walls, aged wood, linen textiles.\",\n    \"MID-CENTURY\": \"1950s/60s design, warm walnut wood, splayed-leg furniture.\",\n    \"PARISIAN CHIC\": \"elegant contrast, bright classical architecture paired with ultra-contemporary design furniture.\",\n    \"ART DECO\": \"Gatsby atmosphere, geometric patterns, deep velvet, brass/gold touches, marble.\",\n    \"ECLECTIC CHIC\": \"Bold Color-blocked Minimalism with Curated Statement Design Icons. The space is a quirky, airy gallery. FURNISHING: Use only a specific curated set of icons: ONE round white Saarinen Tulip dining table with a pair of white Tulip-style chairs featuring vibrant color-blocking (e.g., yellow and red cushions), ONE iconic Mid-Century modern lounge chair (e.g., leather swivel chair), ONE large color-blocked statement sofa, ONE giant Arco polished chrome floor lamp. DECORATION: ONE large abstract art canvas. LARGE scale contemporary art sculptures. ABSOLUTELY NO other furniture or traditional small clutter. LARGE floor space clear. Airy modern gallery feel.\",\n\n    \"JAPANDI\": \"fusion of Japanese minimalism and Scandinavian functionality. Low-profile furniture, natural light wood, muted earthy tones, zen and uncluttered atmosphere.\",\n    \"NATURE INSPIRED\": \"nature-inspired interior, abundant lush indoor plants, organic shapes, natural materials like stone and wood, earthy greens and warm browns, lots of natural light.\",\n    \"BOHO CHIC\": \"relaxed and warm atmosphere, rattan and wicker furniture, textured vintage rugs, macrame details, earthy warm tones, cozy plants.\",\n    \"COASTAL\": \"sun-drenched luxury, white lime-washed walls, terracotta touches, olive green accents, light linen textiles, airy and relaxed coastal vibe.\",\n\n    \"AMERICAN LUXURY\": \"american oversized luxury, monochromatic neutral palettes, massive deep-seated sectional sofas, monumental reclaimed wood coffee tables, oversized floor and table lamps, grand and structured elegance designed to fill a large space.\",\n    \"HOTEL LOUNGE\": \"high-end hotel lobby aesthetic, symmetrical layout, multiple distinct seating areas to perfectly fill the large open space, elegant facing sofas, oversized area rugs to define zones, dramatic statement lighting.\",\n    \"CALIFORNIA MODERN\": \"expansive luxury living, massive low-profile linen sectional sofa, organic modern elements, oversized abstract art on walls, large indoor olive trees to fill vertical space, seamless airy flow suitable for large open spaces.\",\n\n    \"VITRA\": \"Vitra design icons.\",\n    \"BOCONCEPT\": \"urban danish design.\",\n    \"ROCHE BOBOIS\": \"french luxury, rich textures.\",\n    \"MINOTTI\": \"italian ultra-luxe.\",\n    \"KNOLL\": \"structured design, chrome steel tubes.\",\n    \"HERMAN MILLER\": \"high-end ergonomic furniture.\",\n    \"LIGNE ROSET\": \"french contemporary relaxed design, featuring iconic Togo sofas, soft plush forms, vibrant yet elegant colors.\",\n    \"BULTHAUP\": \"german luxury kitchen minimalism.\",\n    \"BOFFI\": \"italian ultra-luxe kitchen.\",\n    \"POLIFORM\": \"italian ultra-luxe kitchen/closet.\",\n    \"ARTHUR BONNET\": \"french elegance kitchen.\",\n    \"PORCELANOSA\": \"spanish ultra-luxury bathroom, large-format textured ceramic tiles, minimalist high-end fixtures, spa-like elegant atmosphere.\"\n};\n\nconst styleDescription = styleLibrary[chosenStyle] || chosenStyle;\nconst styleAnchor = ` [STYLE ADAPTATION REQUIRED]: You must adapt the style code '${chosenStyle}' (${styleDescription}) to specifically fit a '${roomEN}'.`;\n\nlet finalPrompt = \"\";\n\n// >>> STRICT ARCHITECTURAL RULES (anti-hallucination guard) <<<\nconst baseRules = \"[STRICT ARCHITECTURAL RULES - ZERO TOLERANCE]: This is an IN-PLACE PHOTO EDIT of the provided photograph, NOT a new render. 1. ABSOLUTELY PRESERVE the existing fixed architecture of the provided photo (walls, ceiling molding, windows, doors, floor, outlets). Do NOT change the technical structure. ABSOLUTELY NO new architectural elements added. 2. MAINTAIN EXACT CAMERA ANGLE and perspective. 3. RESPECT exact room proportions. 4. Natural direct daylight, professional photorealistic render. 5. FOREGROUND SAFETY: Keep immediate foreground open and clear. \";\nconst lightingRule = \" LIGHTING: Respect existing electrical outlets. Dress exposed wires with a beautiful lamp adapted to the style. If no outlet, do NOT invent one. \";\n// Appended at the VERY END of every generation prompt (image models weigh the\n// end of the prompt heavily) — locks camera and room geometry.\nconst cameraLock = \" [FINAL HARD CONSTRAINTS - VERIFY BEFORE OUTPUT]: This is an in-place edit of the input photograph. 1) Camera position, angle, framing, perspective and focal length must be PIXEL-IDENTICAL to the input photo - do not zoom out, do not widen the view, do not rotate. 2) Room geometry is FROZEN: same walls, same ceiling, same windows, same doors, same floor area - never extend or reproportion the room. 3) Do NOT add ceiling-mounted or architectural elements: no chandeliers, no ceiling lights, no fireplaces, no extra windows, no moldings. 4) Added furniture and decor must fit entirely WITHIN the space visible in the original photo. If a styling instruction conflicts with these constraints, the constraints win.\";\n\n// =========================================================================\n// 6. ACTION LOGIC\nif (chosenAction === \"UPSCALE\") {\n    finalPrompt = \"NO_PROMPT_REQUIRED_FOR_UPSCALE\";\n\n} else if (chosenAction === \"EMPTY\") {\n    finalPrompt = baseRules + \"REQUIRED ACTION: Remove absolutely ALL furniture, objects, and decorations to render this room entirely empty. Architecture only visible.\";\n\n} else if (chosenAction === \"CLEAN\") {\n    finalPrompt = baseRules + \"REQUIRED ACTION: Virtually clean this room. Remove clutter, trash, wires, and work marks. Make the space impeccable and airy. STRICT NEGATIVE PROMPT: DO NOT add any fireplaces, DO NOT add radiators, DO NOT add furniture, DO NOT add decorations. Only restore the bare walls and floor where items were removed.\";\n\n} else {\n    // ACTION = FURNISH\n    const furnishBase = baseRules + \"6. LIFESTYLE: elegant lived-in aspect. \";\n    let specificPrompt = \"\";\n\n    if (roomEN === \"STUDIO APARTMENT\") {\n        specificPrompt = `FUNCTION: STUDIO APARTMENT.${styleAnchor} WINDOWS: Curtains neatly arranged. [MULTI-FUNCTIONAL SPACE RULE]: Smartly organize this single room into a cohesive, fully-equipped studio apartment. FURNISHING: You MUST include three functional zones: 1. A sleeping area with a comfortable bed. 2. A compact, functional kitchenette along a wall. 3. A small multi-purpose dining/work table with chairs. Ensure harmonious flow between the living, sleeping, and cooking zones without overcrowding the space. ${lightingRule}`;\n    } else if (roomEN === \"LARGE LIVING ROOM\") {\n        specificPrompt = `FUNCTION: LARGE SCALE LIVING ROOM / LOFT.${styleAnchor} WINDOWS: Curtains neatly arranged, keeping the outside view clear. [GRAND VOLUME RULE]: Use oversized, large-scale furniture suited to the generous volume, placed ONLY within the area visible in the photo — never widen the view to show more space. Create up to 2 functional zones inside the visible area (e.g., main lounge + reading corner). Do not leave large empty gaps in the visible floor. Large area rugs to define zones. ${lightingRule}`;\n    } else if (roomEN === \"LIVING ROOM\") {\n        if (chosenStyle === \"ECLECTIC CHIC\") {\n            specificPrompt = `FUNCTION: LIVING ROOM.${styleAnchor} WINDOWS: Curtains neatly arranged, keeping the outside view clear. [AVANT-GARDE GALLERY RULE]: The room must be ultra-minimalist, airy, and uncluttered. Give the AI creative freedom for a curated design icon gallery. FURNISHING: ONE statement round white Saarinen Tulip dining table with a pair of white Tulip-style chairs featuring vibrant color-blocking (specify color cushions). Add ONE iconic Mid-Century modern lounge chair (e.g., leather swivel chair). Add ONE giant Arco polished chrome floor lamp. DECORATION: Add LARGE scale contemporary art sculptures. LARGE floor space clear. ABSOLUTELY NO traditional small clutter. Airy modern gallery feel. Sun-drenched sunburst view. ${lightingRule}`;\n        } else {\n            specificPrompt = `FUNCTION: LIVING ROOM.${styleAnchor} WINDOWS: Curtains neatly arranged, keeping the outside view clear. FURNISHING AND DECORATION: The layout (sofa, coffee table, rug, dining zone, etc.) must STRICTLY follow the requested style directives above.${lightingRule}`;\n        }\n    } else if (roomEN === \"KITCHEN\") {\n        specificPrompt = `FUNCTION: FITTED KITCHEN.${styleAnchor} FURNISHING: Built-in oven, refrigerator. LIGHTING: LED strips.${lightingRule}`;\n    } else if (roomEN === \"BEDROOM\") {\n        specificPrompt = `FUNCTION: BEDROOM.${styleAnchor} WINDOWS: Curtains neatly arranged. FURNISHING: Generous double bed, nightstands. DECORATION: Throw blanket, book, wall art.${lightingRule}`;\n    } else if (roomEN === \"KIDS ROOM\") {\n        specificPrompt = `FUNCTION: KIDS ROOM.${styleAnchor} WINDOWS: Curtains neatly arranged. FURNISHING: Kids bed, small desk. DECORATION: Play rug, wooden toys. Soft and bright.${lightingRule}`;\n    } else if (roomEN === \"BALCONY\") {\n        specificPrompt = `FUNCTION: BALCONY.${styleAnchor} FURNISHING: Minimal outdoor seating. Plants.`;\n    } else if (roomEN === \"OFFICE\") {\n        specificPrompt = `FUNCTION: HOME OFFICE.${styleAnchor} WINDOWS: Curtains neatly arranged. FURNISHING: Desk, ergonomic chair. DECORATION: Rug, book, mug.${lightingRule}`;\n    } else if (roomEN === \"BATHROOM\") {\n        specificPrompt = `FUNCTION: BATHROOM.${styleAnchor} FURNISHING: Keep existing fixtures. Add elegant bath linen.${lightingRule}`;\n    } else {\n        specificPrompt = `FUNCTION: ${roomEN}.${styleAnchor} FURNISHING: Perfectly fitted, uncluttered furniture. Minimal lived-in feel.${lightingRule}`;\n    }\n\n    finalPrompt = furnishBase + specificPrompt;\n}\n\n// =========================================================================\n// === User comment ===\nconst userComment = (items[0].json.comment || \"\").trim();\nif (userComment) {\n  finalPrompt = finalPrompt + \" ADDITIONAL USER INSTRUCTIONS: \" + userComment + \".\";\n}\n\n// Camera/geometry lock goes LAST so it outweighs everything above —\n// including style directives and user instructions.\nif (chosenAction !== \"UPSCALE\") {\n  finalPrompt = finalPrompt + cameraLock;\n}\n\n// 7. ASSEMBLE AND SEND\nreturn {\n  json: {\n    ...items[0].json,\n    finalPrompt: finalPrompt,\n    roomType: roomEN,\n    action: actionEN,\n    // Only meaningful for FURNISH — kept empty otherwise so the job log\n    // and the stats page never count a style that was not actually used.\n    styleDetected: actionEN === \"FURNISH\" ? chosenStyle : \"\"\n  },\n  binary: {\n    data: items[0].binary.photo\n  }\n};"
+      },
+      "id": "050da31c-c44e-45b1-b06e-1b16605e99a7",
+      "name": "Brain",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "UPSCALE",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "id": "2b50112e-c54e-46cb-88ba-48d892742956"
+            }
+          ],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          }
+        },
+        "options": {}
+      },
+      "id": "4cbe9160-dc7b-4dfa-b83e-aa2b4b22e916",
+      "name": "Is upscale",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1536,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "if (!items[0].binary) {\n  throw new Error(\"No binary data (image) reached this node.\");\n}\nconst binaryKeyName = Object.keys(items[0].binary)[0];\nif (!binaryKeyName) {\n  throw new Error(\"The binary folder is empty!\");\n}\nconst binaryDataBuffer = await this.helpers.getBinaryDataBuffer(0, binaryKeyName);\nconst mimeType = items[0].binary[binaryKeyName].mimeType;\nconst base64Data = binaryDataBuffer.toString('base64');\nconst imageUrl = `data:${mimeType};base64,${base64Data}`;\nreturn {\n  json: {\n    ...items[0].json,\n    fal_image_url: imageUrl\n  }\n};"
+      },
+      "id": "3736d3d7-ac90-40ab-b1a2-351cb77ca83b",
+      "name": "To base64",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fal.run/fal-ai/esrgan",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"image_url\": \"{{ $json.fal_image_url }}\"\n}",
+        "options": {}
+      },
+      "id": "b25be73e-2cc5-40e5-9ef6-62c919ef8f11",
+      "name": "Fal esrgan",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1952,
+        0
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.image.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "fa1f243f-d5e4-44be-bb8f-93a16594ebd2",
+      "name": "Fal download",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2144,
+        0
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "={{ $json.finalPrompt }}",
+        "images": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {
+          "binaryPropertyOutput": "data"
+        }
+      },
+      "id": "a9f3e45a-5396-4817-b63f-eedecdbfcd78",
+      "name": "Edit image",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        480
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "name": "={{ $('Brain').item.json.action }}_{{ $('Brain').item.json.roomType }}_{{ $now.toFormat('yyyyMMdd_HHmmss') }}.jpg",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "root",
+          "mode": "list",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "55ef54cd-78d6-43a8-b2cf-7ddc2c00f205",
+      "name": "Upload Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2336,
+        256
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "staging_jobs",
+          "cachedResultName": "staging_jobs"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "jobId",
+              "condition": "eq",
+              "keyValue": "={{ $('Brain').item.json.jobId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "done",
+            "driveFileId": "={{ $json.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "f1cc1b53-d31b-4271-b397-db53a3eebd5f",
+      "name": "Mark done",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2528,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "staging_jobs",
+          "cachedResultName": "staging_jobs"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "jobId",
+              "condition": "eq",
+              "keyValue": "={{ $('Brain').first().json.jobId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "error",
+            "errorMessage": "={{ $json.error?.message || 'generation failed' }}"
+          },
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "416d4b04-d829-4064-9fb2-5d33f07ef5e9",
+      "name": "Mark error",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2144,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "staging_jobs",
+          "cachedResultName": "staging_jobs"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "jobId": "={{ $json.jobId }}",
+            "status": "pending",
+            "driveFileId": "",
+            "action": "={{ $json.action }}",
+            "room": "={{ $json.roomType }}",
+            "style": "={{ $json.styleDetected }}",
+            "day": "={{ $now.toFormat('yyyy-MM-dd') }}",
+            "errorMessage": ""
+          },
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "dd0a9eac-56f5-4362-ac0e-55ca31f22ad3",
+      "name": "Reserve job",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1488,
+        256
+      ],
+      "onError": "stopWorkflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "// The data-table insert above replaces the item with the DB row and drops\n// the photo. Re-emit Brain's full output (prompt + binary) so generation runs.\nreturn [{ json: $('Brain').first().json, binary: $('Brain').first().binary }];"
+      },
+      "id": "9d578bde-627c-4a40-b743-8464db12a4c4",
+      "name": "Restore item",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "path": "home-staging-status",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "e15efd31-02f2-4641-a533-90609bf2c518",
+      "name": "Status GET",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        480
+      ],
+      "webhookId": "4e729848-7aac-4c2b-b572-288878ac3dbe"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "staging_jobs",
+          "cachedResultName": "staging_jobs"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "jobId",
+              "condition": "eq",
+              "keyValue": "={{ $json.query.jobId }}"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1
+      },
+      "id": "b1d4ec2d-c423-439e-887c-a40e60be7060",
+      "name": "Get job",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        480
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = items.length ? items[0].json : null;\nif (!row || !row.jobId) {\n  return [{ json: { status: 'pending' } }];\n}\n// Never leak the raw provider error to the public client — the form shows a\n// generic localized message. The detail stays in the data table for the owner.\nreturn [{ json: { status: row.status } }];"
+      },
+      "id": "7ab859c7-9aeb-4763-bf96-241ea41777a1",
+      "name": "Shape status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "9ac588e5-ffd6-48c2-9bb6-5e5d3082b4c1",
+      "name": "Reply status",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "path": "home-staging-image",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "f4e99cd6-fc20-4381-b8cc-3e395621d33f",
+      "name": "Image GET",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        688
+      ],
+      "webhookId": "9e7f45f8-c2b5-4e08-8053-5c5a2ca9c508"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "staging_jobs",
+          "cachedResultName": "staging_jobs"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "jobId",
+              "condition": "eq",
+              "keyValue": "={{ $json.query.jobId }}"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1
+      },
+      "id": "e7435b25-c5ec-4dfc-8ab3-58f8cff54f05",
+      "name": "Get job img",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.driveFileId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "77b74aaa-35d4-48c2-9102-3cff4e6ba60d",
+      "name": "Download",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        448,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "responseDataSource": "set",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "image/jpeg"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "ea46c6bc-bdbc-4a42-b7b1-fe059a52721c",
+      "name": "Reply image",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "path": "home-staging-stats",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a31b647e-de47-4b69-9b95-60db94febbe4",
+      "name": "Stats GET",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        896
+      ],
+      "webhookId": "b2477a49-3d0c-414e-b513-6d94a4c44369"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "staging_jobs",
+          "cachedResultName": "staging_jobs"
+        },
+        "returnAll": true
+      },
+      "id": "75158a68-b809-4756-a80d-9fa24b0e1485",
+      "name": "Get all jobs",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        896
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// ====== STATS SETTINGS (edit here) ======\nconst ACCESS_PIN = \"\";        // protect this page — use the same code as in Access gate AND \"Save settings\" (\"\" = public, read-only quota)\nconst COST_PER_IMAGE = 0.13;  // your estimated API cost per generation\nconst CURRENCY = \"€\";\nconst LANGUAGE = \"en\";        // \"en\" | \"fr\" | \"de\"\nconst DEFAULT_DAILY_LIMIT = 30; // shown until you change it below; should match DAILY_LIMIT in the Access gate node\n// ========================================\n\nconst T = {\n  en: { title: \"Usage & costs\", sub: \"Pay only for what you generate.\", today: \"Today\", month: \"This month\", all: \"All time\", est: \"≈ {c} estimated\", last14: \"Last 14 days\", byAction: \"By action\", topStyles: \"Top styles\", errors: \"failed generations\", note: \"Estimated at {p} per image — edit COST_PER_IMAGE in the “Stats page” node.\", denied: \"Access denied — append ?pin=YOUR_CODE to the URL.\", empty: \"No generations yet.\", limitTitle: \"Daily generation limit\", used: \"used today\", unlimited: \"Unlimited\", save: \"Save\", saved: \"Saved\", saveErr: \"Save failed\", limitHint: \"0 = unlimited. Protects your API budget.\", actions: { FURNISH: \"Furnish\", EMPTY: \"Empty\", CLEAN: \"Clean\", UPSCALE: \"Upscale\" } },\n  fr: { title: \"Usage & coûts\", sub: \"Vous ne payez que ce que vous générez.\", today: \"Aujourd'hui\", month: \"Ce mois-ci\", all: \"Au total\", est: \"≈ {c} estimés\", last14: \"14 derniers jours\", byAction: \"Par action\", topStyles: \"Styles les plus utilisés\", errors: \"générations échouées\", note: \"Estimation à {p} par image — modifiable (COST_PER_IMAGE) dans le nœud « Stats page ».\", denied: \"Accès refusé — ajoutez ?pin=VOTRE_CODE à l'URL.\", empty: \"Aucune génération pour l'instant.\", limitTitle: \"Limite de générations / jour\", used: \"utilisées aujourd'hui\", unlimited: \"Illimité\", save: \"Enregistrer\", saved: \"Enregistré\", saveErr: \"Échec de l'enregistrement\", limitHint: \"0 = illimité. Protège votre budget API.\", actions: { FURNISH: \"Meubler\", EMPTY: \"Vider\", CLEAN: \"Nettoyer\", UPSCALE: \"Upscale\" } },\n  de: { title: \"Nutzung & Kosten\", sub: \"Sie zahlen nur, was Sie generieren.\", today: \"Heute\", month: \"Diesen Monat\", all: \"Insgesamt\", est: \"≈ {c} geschätzt\", last14: \"Letzte 14 Tage\", byAction: \"Nach Aktion\", topStyles: \"Meistgenutzte Stile\", errors: \"fehlgeschlagene Generierungen\", note: \"Geschätzt mit {p} pro Bild — anpassbar (COST_PER_IMAGE) im Node „Stats page“.\", denied: \"Zugriff verweigert — hängen Sie ?pin=IHR_CODE an die URL an.\", empty: \"Noch keine Generierungen.\", limitTitle: \"Tageslimit für Generierungen\", used: \"heute genutzt\", unlimited: \"Unbegrenzt\", save: \"Speichern\", saved: \"Gespeichert\", saveErr: \"Speichern fehlgeschlagen\", limitHint: \"0 = unbegrenzt. Schützt Ihr API-Budget.\", actions: { FURNISH: \"Einrichten\", EMPTY: \"Leeren\", CLEAN: \"Aufräumen\", UPSCALE: \"Hochskalieren\" } },\n};\nconst L = T[LANGUAGE] || T.en;\n\nconst money = (n) => (Math.round(n * 100) / 100).toFixed(2) + \" \" + CURRENCY;\nconst esc = (s) => String(s).replace(/[&<>\"']/g, (c) => ({ \"&\": \"&amp;\", \"<\": \"&lt;\", \">\": \"&gt;\", '\"': \"&quot;\", \"'\": \"&#39;\" }[c]));\n\nconst q = $('Stats GET').first().json.query || {};\nif (ACCESS_PIN && (q.pin || \"\") !== ACCESS_PIN) {\n  const denied = '<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>' + L.title + '</title></head><body style=\"font-family:sans-serif;display:flex;min-height:90vh;align-items:center;justify-content:center;background:#eef2f6;color:#0c2438\"><p>' + L.denied + \"</p></body></html>\";\n  return [{ json: { html: denied } }];\n}\n\n// Current daily limit: dashboard override (workflow static data) or the default.\nconst sd = $getWorkflowStaticData(\"global\");\nconst curLimit = (sd && sd.dailyLimit !== undefined && sd.dailyLimit !== null && sd.dailyLimit !== \"\" && !isNaN(Number(sd.dailyLimit))) ? Number(sd.dailyLimit) : DEFAULT_DAILY_LIMIT;\nconst editable = !!ACCESS_PIN; // editing is only offered on a PIN-protected page\nconst pinForJs = editable ? (q.pin || \"\") : \"\";\n\nconst rows = items.map(i => i.json).filter(r => r && r.jobId);\nconst dToday = $now.toFormat(\"yyyy-MM-dd\");\nconst dMonth = dToday.slice(0, 7);\nlet nToday = 0, nMonth = 0, nErr = 0;\nconst byAction = {}, byStyle = {}, byDay = {};\nfor (const r of rows) {\n  const day = r.day || \"\";\n  if (day === dToday) nToday++;\n  if (day.indexOf(dMonth) === 0) nMonth++;\n  if (r.status === \"error\") nErr++;\n  const a = r.action || \"?\";\n  byAction[a] = (byAction[a] || 0) + 1;\n  if (r.status !== \"error\" && a === \"FURNISH\" && r.style) byStyle[r.style] = (byStyle[r.style] || 0) + 1;\n  if (day) byDay[day] = (byDay[day] || 0) + 1;\n}\n\nlet bars = \"\", maxBar = 1;\nconst days = [];\nfor (let i = 13; i >= 0; i--) {\n  const d = $now.minus({ days: i }).toFormat(\"yyyy-MM-dd\");\n  const v = byDay[d] || 0;\n  days.push([d, v]);\n  if (v > maxBar) maxBar = v;\n}\nfor (const dv of days) {\n  const h = Math.max(3, Math.round((dv[1] / maxBar) * 76));\n  bars += '<div class=\"bcol\" title=\"' + dv[0] + \" · \" + dv[1] + '\"><div class=\"bar\" style=\"height:' + h + \"px;opacity:\" + (dv[1] ? 1 : 0.25) + '\"></div></div>';\n}\n\nconst actionRows = Object.entries(byAction).sort((a, b) => b[1] - a[1])\n  .map((e) => \"<tr><td>\" + esc(L.actions[e[0]] || e[0]) + \"</td><td>\" + e[1] + \"</td></tr>\").join(\"\");\nconst styleRows = Object.entries(byStyle).sort((a, b) => b[1] - a[1]).slice(0, 5)\n  .map((e) => \"<tr><td>\" + esc(e[0]) + \"</td><td>\" + e[1] + \"</td></tr>\").join(\"\");\n\nconst limitDisplay = curLimit === 0 ? L.unlimited : curLimit;\nconst limitEdit = editable\n  ? '<div class=\"ledit\"><input id=\"lim\" type=\"number\" min=\"0\" step=\"1\" value=\"' + curLimit + '\"><button id=\"savebtn\" onclick=\"saveLimit()\">' + L.save + '</button><span id=\"savemsg\"></span></div><div class=\"lhint\">' + L.limitHint + \"</div>\"\n  : \"\";\nconst limitCard = '<div class=\"card\"><h2>' + L.limitTitle + '</h2><div class=\"lrow\"><span class=\"lbig\">' + nToday + \" / \" + limitDisplay + '</span><span class=\"lsm\">' + L.used + \"</span></div>\" + limitEdit + \"</div>\";\n\nconst html = `<!DOCTYPE html>\n<html lang=\"${LANGUAGE}\">\n<head>\n<meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>${L.title}</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap\" rel=\"stylesheet\">\n<style>\nbody{margin:0;font-family:'Poppins',sans-serif;background:#eef2f6;color:#0c2438;display:flex;justify-content:center;padding:24px}\n.wrap{width:100%;max-width:760px}\n.head{display:flex;align-items:center;gap:14px;margin-bottom:18px}\nh1{font-size:22px;margin:0}\n.sub{color:#5b6b7b;font-size:13px;margin:2px 0 0}\n.tiles{display:flex;gap:12px;flex-wrap:wrap}\n.tile{flex:1;min-width:150px;background:#fff;border-radius:12px;padding:16px 18px;box-shadow:0 8px 22px rgba(12,36,56,.08)}\n.tile .n{font-size:30px;font-weight:600;line-height:1.1}\n.tile .l{font-size:12px;color:#5b6b7b}\n.tile .c{font-size:12.5px;color:#2a6f97;font-weight:500;margin-top:6px}\n.card{background:#fff;border-radius:12px;padding:16px 18px;margin-top:14px;box-shadow:0 8px 22px rgba(12,36,56,.08)}\n.card h2{font-size:14px;margin:0 0 12px;color:#243b53}\n.bars{display:flex;align-items:flex-end;gap:4px;height:80px}\n.bcol{flex:1;display:flex;align-items:flex-end;height:80px}\n.bar{width:100%;background:#2a6f97;border-radius:3px 3px 0 0}\ntable{width:100%;border-collapse:collapse;font-size:13px}\ntd{padding:7px 4px;border-bottom:1px solid #eef2f6}\ntr:last-child td{border-bottom:none}\ntd:last-child{text-align:right;font-weight:500}\n.note{font-size:11px;color:#8a96a3;margin:18px 4px;text-align:center;line-height:1.5}\n.logo{width:46px;height:46px;border-radius:50%;flex:none}\n.lrow{display:flex;align-items:baseline;gap:8px}\n.lbig{font-size:26px;font-weight:600}\n.lsm{font-size:12px;color:#5b6b7b}\n.ledit{display:flex;align-items:center;gap:8px;margin-top:12px}\n.ledit input{width:110px;padding:9px 11px;border:1px solid #cdd9e5;border-radius:9px;font-family:inherit;font-size:14px}\n.ledit input:focus{outline:none;border-color:#2a6f97;box-shadow:0 0 0 3px rgba(42,111,151,.15)}\n.ledit button{padding:9px 16px;border:none;border-radius:9px;background:#133b5c;color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}\n.ledit button:hover{background:#0c2438}\n.ledit button:disabled{opacity:.6;cursor:default}\n#savemsg{font-size:13px;font-weight:500}\n.lhint{font-size:11px;color:#8a96a3;margin-top:8px}\n</style>\n</head>\n<body><div class=\"wrap\">\n  <div class=\"head\">\n    <svg class=\"logo\" viewBox=\"0 0 120 120\" aria-hidden=\"true\"><circle cx=\"60\" cy=\"60\" r=\"58\" fill=\"#0c2438\"/><rect x=\"38\" y=\"48\" width=\"44\" height=\"16\" rx=\"8\" fill=\"#ffffff\"/><rect x=\"30\" y=\"56\" width=\"13\" height=\"24\" rx=\"6\" fill=\"#ffffff\"/><rect x=\"79\" y=\"56\" width=\"13\" height=\"24\" rx=\"6\" fill=\"#ffffff\"/><rect x=\"40\" y=\"62\" width=\"40\" height=\"14\" rx=\"7\" fill=\"#ffffff\"/><path d=\"M60 2 A58 58 0 0 1 60 118 Z\" fill=\"#0c2438\" opacity=\"0.85\"/><line x1=\"60\" y1=\"6\" x2=\"60\" y2=\"114\" stroke=\"#d9a441\" stroke-width=\"2.5\"/><path d=\"M60 1 L62 7 L68 9 L62 11 L60 17 L58 11 L52 9 L58 7 Z\" fill=\"#d9a441\"/></svg>\n    <div><h1>${L.title}</h1><p class=\"sub\">${L.sub}</p></div>\n  </div>\n  <div class=\"tiles\">\n    <div class=\"tile\"><div class=\"n\">${nToday}</div><div class=\"l\">${L.today}</div></div>\n    <div class=\"tile\"><div class=\"n\">${nMonth}</div><div class=\"l\">${L.month}</div><div class=\"c\">${L.est.replace(\"{c}\", money(nMonth * COST_PER_IMAGE))}</div></div>\n    <div class=\"tile\"><div class=\"n\">${rows.length}</div><div class=\"l\">${L.all}</div><div class=\"c\">${L.est.replace(\"{c}\", money(rows.length * COST_PER_IMAGE))}</div></div>\n  </div>\n  ${limitCard}\n  <div class=\"card\"><h2>${L.last14}</h2><div class=\"bars\">${bars}</div></div>\n  ${actionRows ? '<div class=\"card\"><h2>' + L.byAction + \"</h2><table>\" + actionRows + \"</table></div>\" : \"\"}\n  ${styleRows ? '<div class=\"card\"><h2>' + L.topStyles + \"</h2><table>\" + styleRows + \"</table></div>\" : \"\"}\n  <p class=\"note\">${rows.length ? nErr + \" \" + L.errors + \" · \" : \"\"}${L.note.replace(\"{p}\", money(COST_PER_IMAGE))}${rows.length ? \"\" : \"<br>\" + L.empty}</p>\n</div>\n<script>\nvar SET_PIN = ${JSON.stringify(pinForJs)};\nvar MSG = { saved: ${JSON.stringify(L.saved)}, err: ${JSON.stringify(L.saveErr)} };\nasync function saveLimit(){\n  var inp = document.getElementById('lim'), btn = document.getElementById('savebtn'), msg = document.getElementById('savemsg');\n  var v = parseInt(inp.value, 10); if (isNaN(v) || v < 0) { alert('Enter a number (0 = unlimited).'); return; }\n  btn.disabled = true; msg.textContent = '…'; msg.style.color = '#5b6b7b';\n  try {\n    var r = await fetch('home-staging-settings', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ pin: SET_PIN, daily_limit: v }) });\n    var d = await r.json();\n    if (d && d.ok) { msg.textContent = '✓ ' + MSG.saved; msg.style.color = '#2e7d32'; inp.value = d.daily_limit; }\n    else { msg.textContent = MSG.err; msg.style.color = '#c0392b'; }\n  } catch(e) { msg.textContent = MSG.err; msg.style.color = '#c0392b'; }\n  btn.disabled = false;\n  setTimeout(function(){ msg.textContent = ''; }, 2500);\n}\n</script>\n</body></html>`;\n\nreturn [{ json: { html } }];"
+      },
+      "id": "bba62807-d48c-4e86-8026-ef90bb389e21",
+      "name": "Stats page",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        896
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "id": "a88115e7-6903-496d-aee7-fe19ed11e70c",
+      "name": "Send stats",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        896
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "home-staging-settings",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "761e9834-6fb3-496a-866f-45247575585f",
+      "name": "Settings POST",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        1280
+      ],
+      "webhookId": "b291bc43-c721-41d0-b165-86c45c04c1ad"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ====== must match the ACCESS_PIN of the \"Stats page\" node ======\nconst SETTINGS_PIN = \"\";\n// ================================================================\n\nconst body = items[0].json.body || items[0].json;\nconst pin = (body.pin || \"\").toString();\nif (!SETTINGS_PIN || pin !== SETTINGS_PIN) {\n  return [{ json: { ok: false, error: \"denied\" } }];\n}\nlet n = parseInt(body.daily_limit, 10);\n// Un champ vide ou non numerique ne doit JAMAIS devenir 0 (= illimite) :\n// cela supprimerait le plafond de depense en affichant \"Saved\".\nif (isNaN(n) || n < 0) {\n  return [{ json: { ok: false, error: \"invalid\" } }];\n}\nif (n > 100000) n = 100000;\nconst sd = $getWorkflowStaticData(\"global\");\nsd.dailyLimit = n;\nreturn [{ json: { ok: true, daily_limit: n } }];"
+      },
+      "id": "c9e65be6-7921-454c-9df8-cc54796c9877",
+      "name": "Save settings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "f2cfa936-47ca-4520-aee7-67c956e26519",
+      "name": "Reply settings",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        1280
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "89392d9a-ed09-4961-8c2b-51fd5b79b558",
+      "name": "Setup: run once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "staging_jobs",
+        "columns": {
+          "column": [
+            {
+              "name": "jobId",
+              "type": "string"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "driveFileId",
+              "type": "string"
+            },
+            {
+              "name": "action",
+              "type": "string"
+            },
+            {
+              "name": "room",
+              "type": "string"
+            },
+            {
+              "name": "style",
+              "type": "string"
+            },
+            {
+              "name": "day",
+              "type": "string"
+            },
+            {
+              "name": "errorMessage",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "id": "d6f75259-8dd4-42ea-aff9-7cf7e1670de8",
+      "name": "Create staging_jobs table",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 👋 START HERE — setup in ~10 min\n\n**1.** Connect **Google Gemini** credentials\n→ node `Edit image`\n\n**2.** Connect **Google Drive** credentials\n→ nodes `Upload Drive` + `Download`\n\n**3.** Press **Execute workflow** once\n→ the Setup branch (bottom left) creates the\n`staging_jobs` data table automatically\n\n**4.** **Activate** the workflow, then open:\n`https://YOUR-N8N/webhook/home-staging-form`\n\n---\n\n**Optional — 4K upscale:** create a *Header Auth*\ncredential on `Fal esrgan`: name `Authorization`,\nvalue `Key YOUR_FAL_KEY` (fal.ai)\n\n**Your branding & language:** edit the `BRAND`\nblock at the top of the `Page HTML` node\n(`language: \"en\" | \"fr\" | \"de\"`)\n\n**Your signature style:** edit `SIGNATURE STYLE`\nin the `Brain` node\n\n**Style catalog & thumbnails:** `STYLES` +\n`STYLE_THUMBS` in `Page HTML` (see README)\n\n**Access protection (optional):** `ACCESS_PIN`\n& `DAILY_LIMIT` in the `Access gate` node\n\n**Usage & costs dashboard:**\n`https://YOUR-N8N/webhook/home-staging-stats`",
+        "height": 1040,
+        "width": 440,
+        "color": 4
+      },
+      "id": "d6e0237b-b3f3-4b19-8061-33e48104c80a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 🎨 Web app\nServes the form at `GET /webhook/home-staging-form`.\nRebrand it (logo, colors, tagline) in the **BRAND** block of `Page HTML`.",
+        "height": 224,
+        "width": 672,
+        "color": 5
+      },
+      "id": "31fc4111-69ea-4f0f-9f83-8b27e77608b0",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 🧠 Generation pipeline\n`Brain` turns the form into a detailed AI prompt (style library, room rules, brand-safety shield) → `Gemini` edits the photo → result saved to `Drive` → job marked done in the data table.\n\n💡 Files go to *My Drive root* by default — pick a dedicated folder in `Upload Drive`.",
+        "height": 704,
+        "width": 1392,
+        "color": 1
+      },
+      "id": "b6bdea49-12fb-4db5-a22d-1ba541a96c96",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 🔍 Optional: 4K upscale (fal.ai ESRGAN)\nRequires a fal.ai API key. Not using it? Delete these 3 nodes and remove the \"Upscale (4K)\" option from the HTML form.",
+        "height": 304,
+        "width": 672,
+        "color": 3
+      },
+      "id": "4579c6f3-544c-4646-b80c-cac846d277ff",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 🔐 Access & cost protection\nThe webhooks are PUBLIC once active. Defaults: `DAILY_LIMIT = 30` generations/day (cost cap), `ACCESS_PIN = \"\"` (open).\n\n**For any public use, set an `ACCESS_PIN`** at the top of the **Access gate** node (the form asks for it once, then remembers it).\n\n**To edit the daily limit from the Usage & costs dashboard** (no code), set the SAME code in THREE nodes: `Access gate`, `Stats page` AND `Save settings`. The dashboard then shows an editable limit; a value saved there overrides `DAILY_LIMIT`. Without the codes, the dashboard shows it read-only.\n\nFor production, put n8n behind Cloudflare/nginx with **per-IP rate-limiting** on `/webhook/home-staging-submit`. See the README security section.",
+        "height": 200,
+        "width": 928,
+        "color": 2
+      },
+      "id": "59a53a27-a28a-40f0-bf59-d280a9450c75",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        216
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 🔄 Status, image & stats\nThe page polls `/home-staging-status?jobId=…` every 4 s, then loads the final image from `/home-staging-image?jobId=…`.\n\n**Usage & costs dashboard:** open `/webhook/home-staging-stats` (optional `?pin=…`). Cost per image, language and PIN are set at the top of the **Stats page** node.",
+        "height": 624,
+        "width": 880,
+        "color": 6
+      },
+      "id": "c238bf7c-80fa-4953-b39e-60889affdde9",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### ⚙️ Setup branch — run once\nCreates the `staging_jobs` data table (reused if it already exists). Safe to re-run.",
+        "height": 208,
+        "width": 656,
+        "color": 7
+      },
+      "id": "5c68c8f3-d92f-4225-90e1-1e1f84f67d09",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        960
+      ]
+    }
+  ],
+  "connections": {
+    "Form GET": {
+      "main": [
+        [
+          {
+            "node": "Page HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Page HTML": {
+      "main": [
+        [
+          {
+            "node": "Send HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit POST": {
+      "main": [
+        [
+          {
+            "node": "Access gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Access gate": {
+      "main": [
+        [
+          {
+            "node": "Pin ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pin ok": {
+      "main": [
+        [
+          {
+            "node": "Count today",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply denied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count today": {
+      "main": [
+        [
+          {
+            "node": "Quota gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quota gate": {
+      "main": [
+        [
+          {
+            "node": "Quota ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quota ok": {
+      "main": [
+        [
+          {
+            "node": "Brain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply denied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brain": {
+      "main": [
+        [
+          {
+            "node": "Reserve job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reserve job": {
+      "main": [
+        [
+          {
+            "node": "Restore item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore item": {
+      "main": [
+        [
+          {
+            "node": "Reply jobId",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is upscale",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is upscale": {
+      "main": [
+        [
+          {
+            "node": "To base64",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "To base64": {
+      "main": [
+        [
+          {
+            "node": "Fal esrgan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fal esrgan": {
+      "main": [
+        [
+          {
+            "node": "Fal download",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fal download": {
+      "main": [
+        [
+          {
+            "node": "Upload Drive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit image": {
+      "main": [
+        [
+          {
+            "node": "Upload Drive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Drive": {
+      "main": [
+        [
+          {
+            "node": "Mark done",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status GET": {
+      "main": [
+        [
+          {
+            "node": "Get job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get job": {
+      "main": [
+        [
+          {
+            "node": "Shape status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape status": {
+      "main": [
+        [
+          {
+            "node": "Reply status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image GET": {
+      "main": [
+        [
+          {
+            "node": "Get job img",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get job img": {
+      "main": [
+        [
+          {
+            "node": "Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download": {
+      "main": [
+        [
+          {
+            "node": "Reply image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stats GET": {
+      "main": [
+        [
+          {
+            "node": "Get all jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all jobs": {
+      "main": [
+        [
+          {
+            "node": "Stats page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stats page": {
+      "main": [
+        [
+          {
+            "node": "Send stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings POST": {
+      "main": [
+        [
+          {
+            "node": "Save settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save settings": {
+      "main": [
+        [
+          {
+            "node": "Reply settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup: run once": {
+      "main": [
+        [
+          {
+            "node": "Create staging_jobs table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
