@@ -116,6 +116,10 @@ Every prompt is terminated with frozen geometry constraints: camera position, fo
 - `README.md`: Technical specifications, credential setup, and deployment documentation.
 - `ai-virtual-staging-agency-kit.zip`: Complete packaged bundle.
 
+### 🛒 Get the Complete Commercial Workflow & Agency Kit
+* ⚡ **[Instant Download on Whop](https://whop.com/mr-studio-7faa/ai-virtual-home-staging-micro-saas-agency-kit-n8n-gemini-workflow)**
+* 📦 **[Instant Download on Gumroad](https://mannyverse767.gumroad.com/l/ai-virtual-staging-n8n)**
+
 ---
 
 ## 🛡️ Production Security Checklist
