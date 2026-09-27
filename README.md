@@ -6,7 +6,9 @@ A turnkey, production-grade **n8n automation workflow** that serves a complete, 
 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/manny-ruesch/manny-ruesch.github.io/main/assets/gumroad/ai-virtual-staging-n8n.png" alt="AI Virtual Home Staging Studio Before and After Comparison" width="100%">
+  <p align="center">
+  <img src="assets/cover.png" alt="AI Virtual Home Staging Studio — Editorial Luxury Showcase" width="100%">
+</p>
 </p>
 
 ## 🏗️ Architecture & Serverless Pipeline Flow
